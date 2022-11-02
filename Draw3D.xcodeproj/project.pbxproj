@@ -11,6 +11,12 @@
 		4E2B1E872909BE7A00FF4A71 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B1E862909BE7A00FF4A71 /* ContentView.swift */; };
 		4E2B1E892909BE7C00FF4A71 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4E2B1E882909BE7C00FF4A71 /* Assets.xcassets */; };
 		4E2B1E8C2909BE7C00FF4A71 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4E2B1E8B2909BE7C00FF4A71 /* Preview Assets.xcassets */; };
+		4E5B0723290AB138006B7B3B /* PencilViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5B0722290AB138006B7B3B /* PencilViewRepresentable.swift */; };
+		4E5B0725290ADAC0006B7B3B /* ImportExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5B0724290ADAC0006B7B3B /* ImportExport.swift */; };
+		4E5B0727290ADD7F006B7B3B /* SceneViewRepresentatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5B0726290ADD7F006B7B3B /* SceneViewRepresentatable.swift */; };
+		4E5B0729290B12B2006B7B3B /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5B0728290B12B2006B7B3B /* Utilities.swift */; };
+		4E74E0A92911565E00E0EF03 /* ToolbarButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E74E0A82911565E00E0EF03 /* ToolbarButtons.swift */; };
+		4E7AEF02290E68370069D6A1 /* PencilViewOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E7AEF01290E68370069D6A1 /* PencilViewOverlay.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +25,12 @@
 		4E2B1E862909BE7A00FF4A71 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		4E2B1E882909BE7C00FF4A71 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4E2B1E8B2909BE7C00FF4A71 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		4E5B0722290AB138006B7B3B /* PencilViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PencilViewRepresentable.swift; sourceTree = "<group>"; };
+		4E5B0724290ADAC0006B7B3B /* ImportExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportExport.swift; sourceTree = "<group>"; };
+		4E5B0726290ADD7F006B7B3B /* SceneViewRepresentatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneViewRepresentatable.swift; sourceTree = "<group>"; };
+		4E5B0728290B12B2006B7B3B /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
+		4E74E0A82911565E00E0EF03 /* ToolbarButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarButtons.swift; sourceTree = "<group>"; };
+		4E7AEF01290E68370069D6A1 /* PencilViewOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PencilViewOverlay.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,10 +63,16 @@
 		4E2B1E832909BE7A00FF4A71 /* Draw3D */ = {
 			isa = PBXGroup;
 			children = (
-				4E2B1E842909BE7A00FF4A71 /* Draw3DApp.swift */,
 				4E2B1E862909BE7A00FF4A71 /* ContentView.swift */,
+				4E2B1E842909BE7A00FF4A71 /* Draw3DApp.swift */,
+				4E5B0724290ADAC0006B7B3B /* ImportExport.swift */,
+				4E5B0722290AB138006B7B3B /* PencilViewRepresentable.swift */,
+				4E5B0726290ADD7F006B7B3B /* SceneViewRepresentatable.swift */,
+				4E5B0728290B12B2006B7B3B /* Utilities.swift */,
 				4E2B1E882909BE7C00FF4A71 /* Assets.xcassets */,
 				4E2B1E8A2909BE7C00FF4A71 /* Preview Content */,
+				4E7AEF01290E68370069D6A1 /* PencilViewOverlay.swift */,
+				4E74E0A82911565E00E0EF03 /* ToolbarButtons.swift */,
 			);
 			path = Draw3D;
 			sourceTree = "<group>";
@@ -137,7 +155,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4E5B0729290B12B2006B7B3B /* Utilities.swift in Sources */,
+				4E74E0A92911565E00E0EF03 /* ToolbarButtons.swift in Sources */,
+				4E5B0727290ADD7F006B7B3B /* SceneViewRepresentatable.swift in Sources */,
 				4E2B1E872909BE7A00FF4A71 /* ContentView.swift in Sources */,
+				4E5B0723290AB138006B7B3B /* PencilViewRepresentable.swift in Sources */,
+				4E7AEF02290E68370069D6A1 /* PencilViewOverlay.swift in Sources */,
+				4E5B0725290ADAC0006B7B3B /* ImportExport.swift in Sources */,
 				4E2B1E852909BE7A00FF4A71 /* Draw3DApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
