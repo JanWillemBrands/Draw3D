@@ -8,13 +8,13 @@
 import os
 import SwiftUI
 
-let logger = Logger(subsystem: "hello", category: "scene_test")
+let logger = Logger(subsystem: "Draw3D", category: "bla")
 
 @main
 struct Draw3DApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(originalTexture: UIImage(named: "KanaKanaTexture")!)
         }
     }
 }

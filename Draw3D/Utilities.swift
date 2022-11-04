@@ -11,7 +11,6 @@ import SceneKit
 func setFillMode(of node: SCNNode, to fillMode: SCNFillMode) {
     node.enumerateHierarchy { child, stop in
         child.geometry?.firstMaterial?.fillMode = fillMode
-        child.geometry?.firstMaterial?.emission.contents = UIImage(named: "ball")
     }
 }
 
@@ -29,11 +28,11 @@ func emitClear(from node: SCNNode?) {
 
 func mainNode(in scene: SCNScene?) -> SCNNode? {
     let node = scene?.rootNode.childNode(withName: "g0", recursively: true)
-    logger.debug("mainNode: \(node.debugDescription)")
+//    debugPrint("mainNode 'g0': \(String(describing: node))")
     return node
 }
 
-var axesNode: SCNNode {
+var axes: SCNNode {
     let node = SCNNode()
     
     let shaftRadius = 0.003
@@ -89,7 +88,7 @@ var axesNode: SCNNode {
 }
 
 func addAxes(to scene: SCNScene?) -> SCNNode? {
-    let a = axesNode
+    let a = axes
     scene?.rootNode.addChildNode(a)
     return a
 }
@@ -108,52 +107,53 @@ struct VerticalLabelStyle: LabelStyle {
     }
 }
 
-func findHits(in scene: SCNScene?) -> [CGPoint] {
-    // Find hits along the z-axis
-    let pointA = SCNVector3(x: 0, y: 0, z: +1)
-    let pointB = SCNVector3(x: 0, y: 0, z: -1)
+func findTextureHits(with renderer: SCNSceneRenderer?, of point: CGPoint) -> [CGPoint]? {
+    let hitOptions = [SCNHitTestOption.searchMode: SCNHitTestSearchMode.closest.rawValue]
     
-    var textureHits: [CGPoint] = []
-    
-    if let hits = scene?.rootNode.hitTestWithSegment(from: pointA, to: pointB, options: [:]) {
-        for hit in hits {
-            let textureHit = hit.textureCoordinates(withMappingChannel: 0)
-            textureHits.append(textureHit)
-            logger.debug("texture hit at: \(textureHit.debugDescription)")
-        }
-        return textureHits
+    return renderer?.hitTest(point, options: hitOptions).map { hit in
+        hit.textureCoordinates(withMappingChannel: 0)
     }
-    return []
 }
 
-func apply(_ hits: [CGPoint], to texture: UIImage?) -> UIImage? {
-    var img: UIImage?
-    if let texture {
-        let size = texture.size
-        let area = CGRect(x: 0, y: 0, width: size.width, height: size.height)
-        UIGraphicsBeginImageContext(size)
-        
-        texture.draw(in: area)
-        
-        let ctx = UIGraphicsGetCurrentContext()!
-
-        for hit in hits {
-//                    ctx.saveGState()
-            let hitPoint = CGPoint(x: hit.x * size.width, y: hit.y * size.height)
-            logger.debug("hitPoint at: \(hitPoint.debugDescription)")
-            let rect = CGRect(x: hitPoint.x-10, y: hitPoint.y-10, width: 20, height: 20)
-            ctx.setFillColor(UIColor.tintColor.cgColor)
-            ctx.fillEllipse(in: rect)
-//                    ctx.restoreGState()
-        }
-
-        img = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
+func textureCoordinateFromScreenCoordinate(with renderer: SCNSceneRenderer?, of point: CGPoint) -> CGPoint? {
+    let hitOptions = [SCNHitTestOption.searchMode: SCNHitTestSearchMode.closest.rawValue]
+    
+    let hits = renderer?.hitTest(point, options: hitOptions).map { hit in
+        hit.textureCoordinates(withMappingChannel: 0)
     }
+    return hits?.first
+}
+
+func apply(_ hits: [CGPoint]?, to texture: UIImage?) -> UIImage? {
+    guard let hits else { return nil }
+    
+    var img: UIImage?
+        if let texture {
+            let size = texture.size
+            let area = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+            UIGraphicsBeginImageContext(size)
+            
+            texture.draw(in: area)
+            
+            let ctx = UIGraphicsGetCurrentContext()!
+            
+            for hit in hits {
+                //                    ctx.saveGState()
+                let hitPoint = CGPoint(x: hit.x * size.width, y: hit.y * size.height)
+                logger.debug("hitPoint at: \(hitPoint.debugDescription)")
+                let rect = CGRect(x: hitPoint.x-10, y: hitPoint.y-10, width: 20, height: 20)
+                ctx.setFillColor(UIColor.tintColor.cgColor)
+                ctx.fillEllipse(in: rect)
+                //                    ctx.restoreGState()
+            }
+            
+            img = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+        }
     return img
 }
 
-func updateTexture(of scene: inout SCNScene?, and texture: UIImage?, with image: UIImage?) -> UIImage? {
+func blend(texture: UIImage?, with image: UIImage?) -> UIImage? {
     var img: UIImage?
     if let texture {
         let size = texture.size
@@ -164,19 +164,16 @@ func updateTexture(of scene: inout SCNScene?, and texture: UIImage?, with image:
         
         image?.draw(in: area, blendMode: .normal, alpha: 1)
         
-        let ctx = UIGraphicsGetCurrentContext()!
+//        let ctx = UIGraphicsGetCurrentContext()!
 //        ctx.saveGState()
-        let rect = CGRect(x: 0, y: 0, width: 512, height: 512)
-        ctx.setFillColor(UIColor.tintColor.cgColor)
-        ctx.fillEllipse(in: rect)
+//        let rect = CGRect(x: 0, y: 0, width: 512, height: 512)
+//        ctx.setFillColor(UIColor.tintColor.cgColor)
+//        ctx.fillEllipse(in: rect)
 //        ctx.restoreGState()
 
         img = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
     }
-//    let newScene = scene?.copy() as? SCNScene
-//    newScene?.rootNode.geometry?.firstMaterial?.diffuse.contents = newTexture
-//    scene?.rootNode.geometry?.firstMaterial?.diffuse.contents = newTexture
     return img
 }
 

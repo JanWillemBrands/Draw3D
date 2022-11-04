@@ -18,8 +18,10 @@ extension ContentView {
         .fileImporter(isPresented: $isPresentingFileImport, allowedContentTypes: [.usdz]) { result in
             switch result {
             case .success(let url):
+                modelCanvas.drawing = PKDrawing()
+                textureCanvas.drawing = PKDrawing()
                 if url.startAccessingSecurityScopedResource() {
-                    (scene, texture) = getModelFrom(url)
+                    (scene, originalTexture) = getModelFrom(url)
                     url.stopAccessingSecurityScopedResource()
                 }
             case .failure(let error):
@@ -37,32 +39,7 @@ extension ContentView {
     
     @ViewBuilder func ExportButton() -> some View {
         Button(
-            action: { debugPrint(canvasView3D.drawing.strokes.count)
-                let adjustedStrokes = canvasView3D.drawing.strokes.map { stroke -> PKStroke in
-                    var stroke = stroke
-                    // Adjust the stroke ink to be black.
-                    stroke.ink = PKInk(.pen, color: .black)
-                    
-                    // Adjust the stroke widths to be more uniform.
-                    let newPoints = stroke.path.indices.compactMap { index -> PKStrokePoint? in
-                        let point = stroke.path[index]
-                        let adjustedPoint = PKStrokePoint(
-                            location: point.location,
-                            timeOffset: point.timeOffset,
-                            size: CGSize(width: point.size.width * 0.5, height: point.size.height * 0.5),
-                            opacity: point.opacity,
-                            force: point.force,
-                            azimuth: point.azimuth,
-                            altitude: point.altitude)
-                        return adjustedPoint
-                    }
-                    stroke.path = PKStrokePath(controlPoints: newPoints, creationDate: stroke.path.creationDate)
-                    
-                    return stroke
-                }
-                
-                canvasView3D.drawing.strokes.append(contentsOf: adjustedStrokes)
-                },
+            action: {},
             label: { Label("Export", systemImage: "square.and.arrow.up") }
         )
     }
@@ -88,7 +65,7 @@ extension ContentView {
         )
         .confirmationDialog("Are you sure?", isPresented: $isPresentingConfirm) {
             Button("Erase drawing?", role: .destructive) {
-                canvasView3D.drawing = PKDrawing()
+                modelCanvas.drawing = PKDrawing()
             }
         } message: {
             Text("You cannot undo this action.")
@@ -97,27 +74,27 @@ extension ContentView {
     
     @ViewBuilder func MoveDrawToggle() -> some View {
         Button(
-            action: { isPositioning.toggle() },
-            label: { isPositioning ? Label("Move", systemImage: "move.3d") : Label("Draw", systemImage: "scribble.variable") }
+            action: { modelCanMove.toggle() },
+            label: { modelCanMove ? Label("Move", systemImage: "move.3d") : Label("Draw", systemImage: "scribble.variable") }
         )
         .foregroundColor(Color("Laguna"))
     }
     
-    @ViewBuilder func HitButton() -> some View {
+    @ViewBuilder func RunButton() -> some View {
         Button(
             action: {
-                hits = findHits(in: scene)
-                texture = apply(hits, to: texture)
-                //                                texture = updateTexture(of: &scene, and: texture, with: UIImage(named: "apple"))
-                mainNode(in: scene)?.geometry?.firstMaterial?.diffuse.contents = texture
+                hits = findTextureHits(with: renderer, of: CGPoint(x: 250, y: 250))
+                modifiedTexture = apply(hits, to: originalTexture)
+                mainNode(in: scene)?.geometry?.firstMaterial?.diffuse.contents = modifiedTexture
             },
-            label: { Label("Hits \(hits.count)", systemImage: "figure.run") }
+            label: { Label("Run", systemImage: "figure.run") }
         )
     }
     
     @ViewBuilder func TechnicalButton() -> some View {
         Button(
             action: {
+                debugPrint("PoV \(String(describing: renderer?.pointOfView))")
                 isShowingTechnical.toggle()
                 if let scene {
                     if isShowingTechnical {

@@ -8,59 +8,36 @@
 import SwiftUI
 import SceneKit
 import PencilKit
-import CoreGraphics
-
-//func update(texture: inout NSImage, at: CGPoint) {
-//    let synthImage = NSImage(named: "KanaKanaTexture")
-//    let synthImage = NSImage(size: NSSize(width: 1024, height: 1024))
-//    texture.lockFocus()
-//
-//    texture.unlockFocus()
-//    let gc = NSGraphicsContext()
-//
-//    let renderer = UIGraphicsImageRenderer(size: CGSize(width: 1024, height: 1024))
-//
-//    let img = renderer.image { ctx in
-//        let rectangle = CGRect(x: 0, y: 0, width: 512, height: 512)
-//
-//        ctx.cgContext.setFillColor(NSColor.red.cgColor)
-//        ctx.cgContext.setStrokeColor(NSColor.black.cgColor)
-//        ctx.cgContext.setLineWidth(10)
-//
-//        ctx.cgContext.addRect(rectangle)
-//        ctx.cgContext.drawPath(using: .fillStroke)
-//    }
-//
-////    imageView.image = img
-//    return img
-//
-//    let sourceTexture = CGImage(pngDataProviderSource: <#T##CGDataProvider#>, decode: nil, shouldInterpolate: false, intent: .defaultIntent)
-//    var image: NSImage?
-//    image = NSImage(cgImage: sourceTexture, size: .zero)
-//    return image
-//}
 
 struct ContentView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    @Environment(\.undoManager) internal var undoManager
+    @Environment(\.undoManager) var undoManager
     
-    let canvasView3D = PKCanvasView()
-    let canvasView2D = PKCanvasView()
+    let modelCanvas = PKCanvasView()
+    @State internal var isShowingTechnical = false
+    
+    let textureCanvas = PKCanvasView()
+    
     let picker = PKToolPicker()
     
     @State private var isShowingToolPicker = true
-    @State internal var isShowingTechnical = false
     @State internal var isPresentingConfirm = false
     @State internal var isPresentingFileImport = false
-    @State internal var isPositioning = true
-
+    
+    @State internal var modelCanMove = true
+    @State internal var drawingDidChange = false
+    
     @State internal var scene: SCNScene?
-    @State internal var texture: UIImage?
+    @State internal var renderer: SCNSceneRenderer?
+
+    @State internal var originalTexture: UIImage?
+    @State internal var modifiedTexture: UIImage?
+    
+//    @State internal var texture: UIImage?
     @State internal var axes: SCNNode?
     
-    @State internal var hits: [CGPoint] = []
-        
-    // TODO: change to URL
+    @State internal var hits: [CGPoint]? = []
+
     var models = ["one", "two"]
     @State private var selection: Set<String> = []
     
@@ -71,54 +48,86 @@ struct ContentView: View {
             }
         } detail: {
             HStack {
-                // The left view shows the 3D model with the PencilKit painting on top.
                 ZStack {
-//                    SceneView(scene: scene, pointOfView: SCNNode(), options: [.autoenablesDefaultLighting, .allowsCameraControl])
-                        
-                    SceneViewRepresentatable(scene: scene, showTechnical: $isShowingTechnical)
+                    SceneViewContainer(scene: scene, renderer: $renderer, showTechnical: $isShowingTechnical)
                         .aspectRatio(1, contentMode: .fit)
-                    PencilViewRepresentable(canvasView: canvasView3D, picker: picker)
-//                        .onChange(of: canvasView3D.drawing.strokes.count) { _ in
-//                            debugPrint("wow")
-//                        }
-                    // TODO: move this into the UIViewRepresentable?
-                        .disabled(isPositioning)
+                    PencilViewContainer(canvasView: modelCanvas, picker: picker, canvasViewDrawingDidChange: $drawingDidChange)
+                        .disabled(modelCanMove)
                 }
+                .frame(width: 500, height: 500)
                 .aspectRatio(1, contentMode: .fit)
                 .border(Color.primary)
                 
-                // The right view shows the texture with the synthetic painting on top.
                 ZStack {
-                    Image(uiImage: texture ?? UIImage(named: "KanaKanaTexture")!)
+                    Image(uiImage: originalTexture!)
+//                    Image(uiImage: modifiedTexture ?? originalTexture!)
                         .resizable()
-//                    PencilViewOverlay(canvasView: canvasView2D, sourceView: canvasView3D, picker: picker)
-//                        .disabled(true)
-//                        .allowsHitTesting(false)
+                    PencilViewOverlay(canvasView: textureCanvas)
+                        .disabled(true)
                 }
+                .frame(width: 500, height: 500)
                 .aspectRatio(1, contentMode: .fit)
                 .border(Color.primary)
             }
-//            .navigationTitle("baloney")
-//            .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                
+            }
+            .onChange(of: drawingDidChange) { _ in
+                debugPrint("strokes \(modelCanvas.drawing.strokes.count)")
+                
+                let adjustedStrokes = modelCanvas.drawing.strokes.map { stroke -> PKStroke in
+                    var stroke = stroke
+                    
+                    stroke.ink = PKInk(.pen, color: .green)
+                    let newPoints = stroke.path.indices.compactMap { index -> PKStrokePoint? in
+                        let point = stroke.path[index]
+                        
+                        guard let texturePoint = textureCoordinateFromScreenCoordinate(with: renderer, of: point.location) else { return nil }
+                        
+                        debugPrint("TP \(texturePoint)")
+                        debugPrint("pl \(point.location)")
+                        
+                        let adjustedPoint = PKStrokePoint(
+                            location: CGPoint(x: 500*texturePoint.x, y: 500*texturePoint.y),
+//                            location: point.location,
+                            timeOffset: point.timeOffset,
+//                            size: CGSize(width: 100, height: 100),
+                            size: point.size,
+//                            size: CGSize(width: point.size.width * 0.5, height: point.size.height * 0.5),
+                            opacity: point.opacity,
+                            force: point.force,
+                            azimuth: point.azimuth,
+                            altitude: point.altitude)
+                        return adjustedPoint
+                    }
+                    stroke.path = PKStrokePath(
+                        controlPoints: newPoints,
+                        creationDate: stroke.path.creationDate)
+                    
+                    return stroke
+                }
+                
+                textureCanvas.drawing.strokes.append(contentsOf: adjustedStrokes)
+                modelCanvas.drawing.strokes.removeAll()
+                
+                let transformedDrawing = textureCanvas.drawing.image(from: textureCanvas.bounds, scale: 1)
+                modifiedTexture = blend(texture: originalTexture, with: transformedDrawing)
+                mainNode(in: scene)?.geometry?.firstMaterial?.diffuse.contents = modifiedTexture
+            }
+            //            .navigationTitle("baloney")
+            //            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
                     ImportButton()
                     CaptureButton()
                     ExportButton()
                 }
-                
                 ToolbarItemGroup(placement: .secondaryAction) {
-                    ControlGroup {
-                        UndoButton()
-                        RedoButton()
-                        EraseButton()
-                    }
-                    
-                    ControlGroup {
-                        MoveDrawToggle()
-                        HitButton()
-                    }
-                    
+                    UndoButton()
+                    RedoButton()
+                    EraseButton()
+                    MoveDrawToggle()
+                    RunButton()
                     TechnicalButton()
                 }
             }
@@ -133,6 +142,6 @@ struct ContentView_Previews: PreviewProvider {
     static let previewScene = try? SCNScene(url: previewURL)
     
     static var previews: some View {
-        ContentView()
+        ContentView(originalTexture: UIImage(named: "KanaKanaTexture")!)
     }
 }

@@ -8,16 +8,19 @@
 import SwiftUI
 import SceneKit
 
-struct SceneViewRepresentatable: UIViewRepresentable {
-    var scene: SCNScene?
+struct SceneViewContainer: UIViewRepresentable {
     var view = SCNView()
+
+    var scene: SCNScene?
+    @Binding var renderer: SCNSceneRenderer?
     
     @Binding var showTechnical: Bool
     
     func makeUIView(context: Context) -> SCNView {
         view.scene = scene
         view.allowsCameraControl = true
-        view.autoenablesDefaultLighting = true        
+        view.autoenablesDefaultLighting = true
+        view.delegate = context.coordinator
         return view
     }
     
@@ -34,22 +37,22 @@ struct SceneViewRepresentatable: UIViewRepresentable {
             emitClear(from: mainNode(in: uiView.scene))
             uiView.backgroundColor = UIColor.white
         }
-
-        let pov = uiView.pointOfView
-        let camera = pov?.camera
-        let pt = camera?.projectionTransform
-        debugPrint("camera pt \(String(describing: pt))")
     }
     
-//    func makeCoordinator() -> Coordinator {
-//        Coordinator(view)
-//    }
-//
-//    class Coordinator: NSObject {
-//        private let view: SCNView
-//        init(_ view: SCNView) {
-//            self.view = view
-//            super.init()
-//        }
-//    }
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, SCNSceneRendererDelegate {
+        var parent: SceneViewContainer
+        
+        init(_ view: SceneViewContainer) {
+            self.parent = view
+            super.init()
+        }
+        
+        func renderer(_ renderer: SCNSceneRenderer, didRenderScene scene: SCNScene, atTime time: TimeInterval) {
+            parent.renderer = renderer
+        }
+    }
 }
