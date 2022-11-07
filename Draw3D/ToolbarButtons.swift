@@ -95,9 +95,9 @@ extension ContentView {
         Button(
             action: {
                 debugPrint("PoV \(String(describing: renderer?.pointOfView))")
-                isShowingTechnical.toggle()
+                showWireFrame.toggle()
                 if let scene {
-                    if isShowingTechnical {
+                    if showWireFrame {
                         axes = addAxes(to: scene)
                     } else {
                         removeAxes(node: axes)

@@ -14,7 +14,7 @@ struct SceneViewContainer: UIViewRepresentable {
     var scene: SCNScene?
     @Binding var renderer: SCNSceneRenderer?
     
-    @Binding var showTechnical: Bool
+    @Binding var showWireframe: Bool
     
     func makeUIView(context: Context) -> SCNView {
         view.scene = scene
@@ -26,7 +26,7 @@ struct SceneViewContainer: UIViewRepresentable {
     
     func updateUIView(_ uiView: SCNView, context: Context) {
         uiView.scene = scene
-        if showTechnical {
+        if showWireframe {
             uiView.showsStatistics = true
             uiView.debugOptions = [.renderAsWireframe]
             emitWhite(from: mainNode(in: uiView.scene))

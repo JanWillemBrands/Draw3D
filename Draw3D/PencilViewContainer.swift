@@ -12,7 +12,7 @@ struct PencilViewContainer: UIViewRepresentable {
     let canvasView: PKCanvasView
     let picker: PKToolPicker
     
-    @Binding var canvasViewDrawingDidChange: Bool
+    @Binding var drawingDidChange: Bool
     
     func makeUIView(context: Context) -> PKCanvasView {
         canvasView.backgroundColor = .clear
@@ -40,12 +40,11 @@ struct PencilViewContainer: UIViewRepresentable {
         
         init(_ view: PencilViewContainer) {
             self.parent = view
-            super.init()
         }
         
         func canvasViewDrawingDidChange(_ canvasView: PKCanvasView) {
 //            debugPrint("changed \(canvasView.drawing.strokes.count)")
-            parent.canvasViewDrawingDidChange.toggle()
+            parent.drawingDidChange.toggle()
         }
         
         func canvasViewDidFinishRendering(_ canvasView: PKCanvasView) {
