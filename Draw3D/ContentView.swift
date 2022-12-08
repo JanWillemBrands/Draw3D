@@ -8,6 +8,7 @@
 import SwiftUI
 import SceneKit
 import PencilKit
+import RealityKit
 
 struct ContentView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -26,7 +27,7 @@ struct ContentView: View {
     
     @State internal var modelCanMove = true
     @State internal var drawingDidChange = false
-    
+        
     @State internal var scene: SCNScene? = triangleScene
     @State internal var renderer: SCNSceneRenderer?
 
@@ -35,7 +36,8 @@ struct ContentView: View {
     @State private var textureViewSize = CGSize.zero
     
     @State internal var axes: SCNNode?
-    
+    @State internal var nozzle: SCNNode?
+
     @State internal var hits: [CGPoint]? = []
 
     var models = ["one", "two"]
@@ -45,6 +47,13 @@ struct ContentView: View {
         NavigationSplitView {
             List(models, id: \.self, selection: $selection) { group in
                 Text(group)
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .primaryAction) {
+                    ImportButton()
+                    CaptureButton()
+                    ExportButton()
+                }
             }
         } detail: {
             HStack {
@@ -78,23 +87,26 @@ struct ContentView: View {
                 let adjustedStrokes = modelCanvas.drawing.strokes.map { stroke -> PKStroke in
                     var stroke = stroke
                     
-                    stroke.ink = PKInk(.pen, color: .green)
-                    
+                    // TODO: REMOVE !!!
+                    stroke.ink = PKInk(.pen, color: .clear)
+//                    stroke.ink = PKInk(.pen, color: .green)
+
                     let newPoints = stroke.path.indices.compactMap { index -> PKStrokePoint? in
                         let point = stroke.path[index]
                         
                         guard let texturePoint = textureCoordinateFromScreenCoordinate(with: renderer, of: point.location) else { return nil }
                         
-                        let location = CGPoint(x: textureViewSize.width * texturePoint.x, y: textureViewSize.height * texturePoint.y)
+                        let newLocation = CGPoint(x: textureViewSize.width * texturePoint.x, y: textureViewSize.height * texturePoint.y)
 
                         let adjustedPoint = PKStrokePoint(
-                            location: location,
+                            location: newLocation,
                             timeOffset: point.timeOffset,
                             size: point.size,
                             opacity: point.opacity,
                             force: point.force,
                             azimuth: point.azimuth,
                             altitude: point.altitude)
+                        
                         return adjustedPoint
                     }
                     
@@ -114,34 +126,42 @@ struct ContentView: View {
                 let modifiedMaterial = SCNMaterial()
                 modifiedMaterial.diffuse.contents = modifiedTexture
                 
-//                mainNode(in: scene)?.geometry?.materials = [modifiedMaterial]
+                mainNode(in: scene)?.geometry?.materials = [modifiedMaterial]
 //                mainNode(in: scene)?.geometry?.firstMaterial?.diffuse.contents = modifiedTexture
 // REMOVE !!!!
-                mainNode(in: scene)?.geometry?.materials = []
+//                mainNode(in: scene)?.geometry?.materials = []
 
 
             }
             
             
-            //            .navigationTitle("baloney")
-            //            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("baloney")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+//                ToolbarItemGroup(placement: .primaryAction) {
+//                    ImportButton()
+//                    CaptureButton()
+//                    ExportButton()
+//                }
                 ToolbarItemGroup(placement: .primaryAction) {
-                    ImportButton()
-                    CaptureButton()
-                    ExportButton()
+//                    UndoButton()
+//                    RedoButton()
+//                    EraseButton()
+                    MoveDrawToggle()
+                    RunButton()
+                    TechnicalButton()
                 }
                 ToolbarItemGroup(placement: .secondaryAction) {
                     UndoButton()
                     RedoButton()
                     EraseButton()
-                    MoveDrawToggle()
-                    RunButton()
-                    TechnicalButton()
+//                    MoveDrawToggle()
+//                    RunButton()
+//                    TechnicalButton()
                 }
             }
             .toolbarRole(.editor)
-            //            .labelStyle(VerticalLabelStyle())
+//                        .labelStyle(VerticalLabelStyle())
         }
     }
 }

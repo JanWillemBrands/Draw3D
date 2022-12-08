@@ -27,63 +27,11 @@ func emitClear(from node: SCNNode?) {
 }
 
 func mainNode(in scene: SCNScene?) -> SCNNode? {
+    // Alternatively:
+//    return scene?.rootNode.childNodes.first
+    
     let node = scene?.rootNode.childNode(withName: "g0", recursively: true)
     //    debugPrint("mainNode 'g0': \(String(describing: node))")
-    return node
-}
-
-var axes: SCNNode {
-    let node = SCNNode()
-    
-    let shaftRadius = 0.003
-    let tipLength = 10 * shaftRadius
-    let tipRadius = 3 * shaftRadius
-    let shaftLength = 0.3 - tipLength
-    let shaftShift = Float(shaftLength / 2)
-    let tipShift = Float(shaftLength + tipLength / 2)
-    
-    let xGeometry = SCNCylinder(radius: shaftRadius, height: shaftLength)
-    xGeometry.firstMaterial?.diffuse.contents = UIColor.red
-    let x = SCNNode(geometry: xGeometry)
-    x.eulerAngles = SCNVector3(x: 0, y: 0, z: .pi/2)
-    x.position = SCNVector3(x: shaftShift, y: 0, z: 0)
-    node.addChildNode(x)
-    
-    let xTip = SCNCone(topRadius: 0, bottomRadius: tipRadius, height: tipLength)
-    xTip.firstMaterial?.diffuse.contents = UIColor.red
-    let xT = SCNNode(geometry: xTip)
-    xT.eulerAngles = SCNVector3(x: 0, y: 0, z: -.pi/2)
-    xT.position = SCNVector3(x: tipShift, y: 0, z: 0)
-    node.addChildNode(xT)
-    
-    let yGeometry = SCNCylinder(radius: shaftRadius, height: shaftLength)
-    yGeometry.firstMaterial?.diffuse.contents = UIColor.green
-    let y = SCNNode(geometry: yGeometry)
-    y.eulerAngles = SCNVector3(x: 0, y: 0, z: 0)
-    y.position = SCNVector3(x: 0, y: shaftShift, z: 0)
-    node.addChildNode(y)
-    
-    let yTip = SCNCone(topRadius: 0, bottomRadius: tipRadius, height: tipLength)
-    yTip.firstMaterial?.diffuse.contents = UIColor.green
-    let yT = SCNNode(geometry: yTip)
-    yT.eulerAngles = SCNVector3(x: 0, y: 0, z: 0)
-    yT.position = SCNVector3(x: 0, y: tipShift, z: 0)
-    node.addChildNode(yT)
-    
-    let zGeometry = SCNCylinder(radius: shaftRadius, height: shaftLength)
-    zGeometry.firstMaterial?.diffuse.contents = UIColor.blue
-    let z = SCNNode(geometry: zGeometry)
-    z.eulerAngles = SCNVector3(x: .pi/2, y: 0, z: 0)
-    z.position = SCNVector3(x: 0, y: 0, z: shaftShift)
-    node.addChildNode(z)
-    
-    let zTip = SCNCone(topRadius: 0, bottomRadius: tipRadius, height: tipLength)
-    zTip.firstMaterial?.diffuse.contents = UIColor.blue
-    let zT = SCNNode(geometry: zTip)
-    zT.eulerAngles = SCNVector3(x: .pi/2, y: 0, z: 0)
-    zT.position = SCNVector3(x: 0, y: 0, z: tipShift)
-    node.addChildNode(zT)
-    
     return node
 }
 
@@ -97,12 +45,22 @@ func removeAxes(node: SCNNode?) {
     node?.removeFromParentNode()
 }
 
+func addNozzle(to scene: SCNScene?) -> SCNNode? {
+    let n = nozzle
+    scene?.rootNode.addChildNode(n)
+    return n
+}
+
+func removeNozzle(node: SCNNode?) {
+    node?.removeFromParentNode()
+}
+
 struct VerticalLabelStyle: LabelStyle {
     func makeBody(configuration: Configuration) -> some View {
 #if os(iOS)
         configuration.icon
 #else
-        Label(configuration.icon, image: configuration.icon)
+        Label(configuration.title, image: configuration.icon)
 #endif
     }
 }
@@ -115,6 +73,11 @@ func findTextureHits(with renderer: SCNSceneRenderer?, of point: CGPoint) -> [CG
     }
 }
 
+public var vertices: [SCNVector3] = []
+public var normals: [SCNVector3] = []
+public var colors: [SCNVector4] = []
+public var hexes: [(Int32, Int32, Int32, Int32, Int32, Int32)] = []
+
 func textureCoordinateFromScreenCoordinate(with renderer: SCNSceneRenderer?, of point: CGPoint) -> CGPoint? {
     
     let hitOptions = [SCNHitTestOption.searchMode: SCNHitTestSearchMode.closest.rawValue]
@@ -125,36 +88,54 @@ func textureCoordinateFromScreenCoordinate(with renderer: SCNSceneRenderer?, of 
         // get the sources from the loaded .USDZ file as SCNGeometrySource.
         let vertexSources = geometry.sources(for: .vertex)          // there is always exactly one vertext source.
         let normalSources = geometry.sources(for: .normal)          // there may be one or zero normal source.
+        let textureSources = geometry.sources(for: .texcoord)          // there may be one or zero normal source.
         let colorSources = geometry.sources(for: .color)            // there may be one or zero color source.
         let elements = geometry.elements                            // there is always at least one element.
 
         // get the sources from the loaded .USDZ file as array of SCNVector3.
-        let vertices = geometry.vertices()
-        let normals = geometry.normals()
+        vertices = geometry.vertices()
+        normals = geometry.normals()
 //        var colors = geometry.colors()
 
         // a USDZ file may not contain color data.
-//        if colors.isEmpty {
-        var colors = [SCNVector4](repeating: SCNVector4(0.5, 0.5, 0.5, 1.0), count: vertices.count)
-//        }
-
-        let faces = geometry.elements.first!.faces
-
-        print("face ", hit.faceIndex)
-        print("face ", faces[hit.faceIndex])
-
-        for vi in faces[hit.faceIndex] {
-            print("vertex ", vi, vertices[vi])
-            colors[vi] = SCNVector4(1, 0, 0, 1)
+        if colors.isEmpty {
+            colors = [SCNVector4](repeating: SCNVector4(0, 0, 0, 0), count: vertices.count)
         }
+
+        // CAUTION: MAJOR HACK to deal with USDZ model that contains <SCNGeometryElement: 0x60000382b800 | 25000 x triangle, 2 channels, int indices>
+        print(geometry.elements.first!.bytes[0...63])
+        print(geometry.elements.first!.triangles[0...15])
+        print(geometry.elements.first!.hexes[0...7])
         
-        let newVertexSource = SCNGeometrySource(vertices: vertices)
-        let newNormalSource = SCNGeometrySource(normals: normals)
+        print("mirror ", String(reflecting: geometry.elements.first))
+
+//        let hitTriangle = triangles?[hit.faceIndex]
+        hexes = geometry.elements.first!.hexes
+        let hitHex = hexes[hit.faceIndex]
+        print("hitHex", hitHex)
+        
+        // Color the vertices of the hit triangle red.
+        colors[Int(hitHex.0)] = SCNVector4(1, 0, 0, 1)
+        colors[Int(hitHex.2)] = SCNVector4(1, 0, 0, 1)
+        colors[Int(hitHex.4)] = SCNVector4(1, 0, 0, 1)
+
+        // Color the other hex vertices green.
+        colors[Int(hitHex.1)] = SCNVector4(0, 1, 0, 1)
+        colors[Int(hitHex.3)] = SCNVector4(0, 1, 0, 1)
+        colors[Int(hitHex.5)] = SCNVector4(0, 1, 0, 1)
+
+        // Maybe the vertices are interleaved with the normals?
+        print("n1", normals[Int(hitHex.1)])
+        print("n2", normals[Int(hitHex.3)])
+        print("n3", normals[Int(hitHex.5)])
+
+//        let newVertexSource = SCNGeometrySource(vertices: vertices)
+//        let newNormalSource = SCNGeometrySource(normals: normals)
         let newColorSource = SCNGeometrySource(colors: colors)
 //        let newColorSource = SCNGeometrySource(data: colors, semantic: .color)
         
         let newGeometry = SCNGeometry(
-            sources: vertexSources + normalSources + [newColorSource],
+            sources: vertexSources + normalSources + textureSources + [newColorSource],
             elements: geometry.elements
         )
         renderer?.scene?.rootNode.geometry = newGeometry

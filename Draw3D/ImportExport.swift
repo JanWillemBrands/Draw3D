@@ -6,17 +6,23 @@
 //
 
 import SceneKit
+import SceneKit.ModelIO
 
+// When this gets called the URL is assumed valid.
 func getModelFrom(_ url: URL) -> (SCNScene?, UIImage?) {
     var scene: SCNScene?
     var texture: UIImage?
     
-    // getting the scene is straighforward.
     scene = try? SCNScene(url: url, options: [.checkConsistency: true])
     
-    // getting the texture requires first loading them.
     let mdlAsset = MDLAsset(url: url)
+    
+    // Getting the texture requires first loading them.
     mdlAsset.loadTextures()
+    
+    // Alternatively:
+    //    scene = SCNScene(mdlAsset: mdlAsset)
+        
     let mdlMeshes = mdlAsset.childObjects(of: MDLMesh.self) as? [MDLMesh]
     let firstMesh = mdlMeshes?.first
     let firstSubmesh = firstMesh?.submeshes?.firstObject as? MDLSubmesh
@@ -27,7 +33,10 @@ func getModelFrom(_ url: URL) -> (SCNScene?, UIImage?) {
     if let imageFromTexture = mdlTexture?.imageFromTexture()?.takeUnretainedValue() {
         texture = UIImage(cgImage: imageFromTexture)
     }
-
+    
+    // Alternatively:
+//    let x = scene?.rootNode.childNodes.first?.geometry?.firstMaterial?.diffuse.contents as? UIImage
+    
     return (scene, texture)
 }
 

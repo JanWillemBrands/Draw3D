@@ -25,7 +25,7 @@ struct PencilViewContainer: UIViewRepresentable {
     func updateUIView(_ uiView: PKCanvasView, context: Context) {
 //        picker.addObserver(canvasView3D)
 //        picker.setVisible(true, forFirstResponder: uiView)
-        uiView.tool = PKInkingTool(.pen, color: .tintColor, width: .infinity)
+        uiView.tool = PKInkingTool(.pen, color: .green, width: 50)
         DispatchQueue.main.async {
             uiView.becomeFirstResponder()
         }

@@ -6,21 +6,28 @@
 //
 
 import SwiftUI
+import SceneKit
 import PencilKit
+import UniformTypeIdentifiers
 
 extension ContentView {
     
+    var stl: UTType { UTType(filenameExtension: "stl")! }
+    var obj: UTType { UTType(filenameExtension: "obj")! }
+//    var mtl: UTType { UTType(filenameExtension: "mtl")! }
+
     @ViewBuilder func ImportButton() -> some View {
         Button(
             action: { isPresentingFileImport = true},
             label: { Label("Import", systemImage: "square.and.arrow.down") }
         )
-        .fileImporter(isPresented: $isPresentingFileImport, allowedContentTypes: [.usdz]) { result in
+        .fileImporter(isPresented: $isPresentingFileImport, allowedContentTypes: [UTType.usdz, UTType.threeDContent, stl, obj]) { result in
             switch result {
             case .success(let url):
                 modelCanvas.drawing = PKDrawing()
                 textureCanvas.drawing = PKDrawing()
-                if url.startAccessingSecurityScopedResource() {
+                if url.startAccessingSecurityScopedResource()
+                {
                     (scene, originalTexture) = getModelFrom(url)
                     url.stopAccessingSecurityScopedResource()
                 }
@@ -83,9 +90,18 @@ extension ContentView {
     @ViewBuilder func RunButton() -> some View {
         Button(
             action: {
-                hits = findTextureHits(with: renderer, of: CGPoint(x: 250, y: 250))
-                modifiedTexture = apply(hits, to: originalTexture)
-                mainNode(in: scene)?.geometry?.firstMaterial?.diffuse.contents = modifiedTexture
+                let paintedVertexIndices: [Int] = colors.enumerated().compactMap { (index, color) in
+                    color.x == 1 ? index : nil
+                }
+                let path: [Waypoint] = paintedVertexIndices.map { index in
+                    Waypoint(position: vertices[index], orientation: normals[index])
+                }
+                
+                let optimalPath = optimized(path)
+                
+                nozzle = addNozzle(to: scene)
+                move(node: nozzle!, along: optimalPath)
+//                removeNozzle(node: nozzle)
             },
             label: { Label("Run", systemImage: "figure.run") }
         )
@@ -99,8 +115,10 @@ extension ContentView {
                 if let scene {
                     if showWireFrame {
                         axes = addAxes(to: scene)
+                        nozzle = addNozzle(to: scene)
                     } else {
-                        removeAxes(node: axes)
+//                        removeAxes(node: axes)
+                        removeNozzle(node: nozzle)
                     }
                 }
             },
