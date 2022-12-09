@@ -4,8 +4,8 @@
 //
 //  Created by Johannes Brands on 08/11/2022.
 //
-
 import SceneKit
+import SwiftUI
 
 var axes: SCNNode {
     let node = SCNNode()
