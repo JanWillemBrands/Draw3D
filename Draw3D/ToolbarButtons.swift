@@ -28,7 +28,7 @@ extension ContentView {
                 textureCanvas.drawing = PKDrawing()
                 if url.startAccessingSecurityScopedResource()
                 {
-                    (scene, originalTexture) = getModelFrom(url)
+                    (scene, originalTexture) = dm.getModelFrom(url)
                     url.stopAccessingSecurityScopedResource()
                 }
             case .failure(let error):

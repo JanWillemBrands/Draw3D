@@ -11,18 +11,21 @@ import SceneKit
 func setFillMode(of node: SCNNode, to fillMode: SCNFillMode) {
     node.enumerateHierarchy { child, stop in
         child.geometry?.firstMaterial?.fillMode = fillMode
+//        child.geometry?.firstMaterial?.lightingModel = .physicallyBased
     }
 }
 
 func emitWhite(from node: SCNNode?) {
     node?.enumerateHierarchy { child, stop in
         child.geometry?.firstMaterial?.emission.contents = UIColor.white
+//        child.geometry?.firstMaterial?.lightingModel = .physicallyBased
     }
 }
 
 func emitClear(from node: SCNNode?) {
     node?.enumerateHierarchy { child, stop in
         child.geometry?.firstMaterial?.emission.contents = UIColor.clear
+//        child.geometry?.firstMaterial?.lightingModel = .physicallyBased
     }
 }
 
@@ -89,15 +92,12 @@ func textureCoordinateFromScreenCoordinate(with renderer: SCNSceneRenderer?, of 
         let vertexSources = geometry.sources(for: .vertex)          // there is always exactly one vertext source.
         let normalSources = geometry.sources(for: .normal)          // there may be one or zero normal source.
         let textureSources = geometry.sources(for: .texcoord)          // there may be one or zero normal source.
-        let colorSources = geometry.sources(for: .color)            // there may be one or zero color source.
-        let elements = geometry.elements                            // there is always at least one element.
+//        let colorSources = geometry.sources(for: .color)            // there may be one or zero color source.
+//        let elements = geometry.elements                            // there is always at least one element.
 
         // get the sources from the loaded .USDZ file as array of SCNVector3.
         vertices = geometry.vertices()
         normals = geometry.normals()
-//        var colors = geometry.colors()
-
-        // a USDZ file may not contain color data.
         if colors.isEmpty {
             colors = [SCNVector4](repeating: SCNVector4(0, 0, 0, 0), count: vertices.count)
         }
@@ -119,10 +119,10 @@ func textureCoordinateFromScreenCoordinate(with renderer: SCNSceneRenderer?, of 
         colors[Int(hitHex.2)] = SCNVector4(1, 0, 0, 1)
         colors[Int(hitHex.4)] = SCNVector4(1, 0, 0, 1)
 
-        // Color the other hex vertices green.
-        colors[Int(hitHex.1)] = SCNVector4(0, 1, 0, 1)
-        colors[Int(hitHex.3)] = SCNVector4(0, 1, 0, 1)
-        colors[Int(hitHex.5)] = SCNVector4(0, 1, 0, 1)
+//        // Color the other hex vertices green.
+//        colors[Int(hitHex.1)] = SCNVector4(0, 1, 0, 1)
+//        colors[Int(hitHex.3)] = SCNVector4(0, 1, 0, 1)
+//        colors[Int(hitHex.5)] = SCNVector4(0, 1, 0, 1)
 
         // Maybe the vertices are interleaved with the normals?
         print("n1", normals[Int(hitHex.1)])

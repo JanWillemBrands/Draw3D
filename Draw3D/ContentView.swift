@@ -11,6 +11,8 @@ import PencilKit
 import RealityKit
 
 struct ContentView: View {
+    @EnvironmentObject var dm: DrawingModel
+
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.undoManager) var undoManager
     
@@ -56,33 +58,33 @@ struct ContentView: View {
                 }
             }
         } detail: {
-            HStack {
+//            HStack {
                 ZStack {
                     SceneViewContainer(scene: scene, renderer: $renderer, showWireframe: $showWireFrame)
-                        .aspectRatio(1, contentMode: .fit)
+//                        .aspectRatio(1, contentMode: .fit)
                     PencilViewContainer(canvasView: modelCanvas, picker: picker, drawingDidChange: $drawingDidChange)
                         .disabled(modelCanMove)
                 }
-                .aspectRatio(1, contentMode: .fit)
-                .border(Color.primary)
+//                .aspectRatio(1, contentMode: .fit)
+//                .border(Color.primary)
                 
-                ZStack {
-                    Image(uiImage: originalTexture!)
-                        .resizable()
-                    PencilViewOverlay(canvasView: textureCanvas)
-                        .disabled(true)
-                }
-                .background(
-                    GeometryReader { geo in
-                        Color.clear
-                            .onChange(of: geo.size) { newValue in
-                                textureViewSize = newValue
-                            }
-                    }
-                )
-                .aspectRatio(1, contentMode: .fit)
-                .border(Color.primary)
-            }
+//                ZStack {
+//                    Image(uiImage: originalTexture!)
+//                        .resizable()
+//                    PencilViewOverlay(canvasView: textureCanvas)
+//                        .disabled(true)
+//                }
+//                .background(
+//                    GeometryReader { geo in
+//                        Color.clear
+//                            .onChange(of: geo.size) { newValue in
+//                                textureViewSize = newValue
+//                            }
+//                    }
+//                )
+//                .aspectRatio(1, contentMode: .fit)
+//                .border(Color.primary)
+//            }
             .onChange(of: drawingDidChange) { _ in
                 let adjustedStrokes = modelCanvas.drawing.strokes.map { stroke -> PKStroke in
                     var stroke = stroke
@@ -120,13 +122,13 @@ struct ContentView: View {
                 textureCanvas.drawing.strokes.append(contentsOf: adjustedStrokes)
                 modelCanvas.drawing.strokes.removeAll()
                 
-                let transformedDrawing = textureCanvas.drawing.image(from: textureCanvas.bounds, scale: 1)
-                modifiedTexture = blend(texture: originalTexture, with: transformedDrawing)
-
-                let modifiedMaterial = SCNMaterial()
-                modifiedMaterial.diffuse.contents = modifiedTexture
-                
-                mainNode(in: scene)?.geometry?.materials = [modifiedMaterial]
+//                let transformedDrawing = textureCanvas.drawing.image(from: textureCanvas.bounds, scale: 1)
+//                modifiedTexture = blend(texture: originalTexture, with: transformedDrawing)
+//
+//                let modifiedMaterial = SCNMaterial()
+//                modifiedMaterial.diffuse.contents = modifiedTexture
+//
+//                mainNode(in: scene)?.geometry?.materials = [modifiedMaterial]
 //                mainNode(in: scene)?.geometry?.firstMaterial?.diffuse.contents = modifiedTexture
 // REMOVE !!!!
 //                mainNode(in: scene)?.geometry?.materials = []
@@ -172,5 +174,7 @@ struct ContentView_Previews: PreviewProvider {
     
     static var previews: some View {
         ContentView(originalTexture: UIImage(named: "KanaKanaTexture")!)
+            .environmentObject(DrawingModel())
+
     }
 }

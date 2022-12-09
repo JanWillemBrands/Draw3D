@@ -18,9 +18,14 @@ let logger = Logger(subsystem: "Draw3D", category: "bla")
 
 @main
 struct Draw3DApp: App {
+    @StateObject private var dm = DrawingModel()
+
     var body: some Scene {
         WindowGroup {
             ContentView(originalTexture: UIImage(named: "KanaKanaTexture")!)
+            
+                .environmentObject(dm)
+
         }
     }
 }
