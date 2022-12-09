@@ -32,7 +32,6 @@ struct ContentView: View {
     @State internal var renderer: SCNSceneRenderer?
 
     @State internal var originalTexture: UIImage?
-//    @State internal var modifiedTexture: UIImage?
     @State private var textureViewSize = CGSize.zero
     
     @State internal var axes: SCNNode?
@@ -97,7 +96,7 @@ struct ContentView: View {
                 
                 modelCanvas.drawing.strokes.removeAll()
                 
-                // TODO: why is is necessary to remove flickering when rotating model?
+                // TODO: why is this copy necessary to remove flickering when rotating model?
                 let material = SCNMaterial()
                 material.diffuse.contents = originalTexture
                 mainNode(in: scene)?.geometry?.materials = [material]
