@@ -138,7 +138,9 @@ func textureCoordinateFromScreenCoordinate(with renderer: SCNSceneRenderer?, of 
             sources: vertexSources + normalSources + textureSources + [newColorSource],
             elements: geometry.elements
         )
-        renderer?.scene?.rootNode.geometry = newGeometry
+//        hit.node.geometry = newGeometry
+        renderer?.scene?.rootNode.childNodes.first?.geometry = newGeometry
+//        renderer?.scene?.rootNode.geometry = newGeometry
     }
     
     return hit.textureCoordinates(withMappingChannel: 0)

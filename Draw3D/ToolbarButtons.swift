@@ -25,7 +25,6 @@ extension ContentView {
             switch result {
             case .success(let url):
                 modelCanvas.drawing = PKDrawing()
-                textureCanvas.drawing = PKDrawing()
                 if url.startAccessingSecurityScopedResource()
                 {
                     (scene, originalTexture) = dm.getModelFrom(url)

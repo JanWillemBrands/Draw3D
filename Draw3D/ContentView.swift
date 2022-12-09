@@ -19,8 +19,6 @@ struct ContentView: View {
     let modelCanvas = PKCanvasView()
     @State internal var showWireFrame = false
     
-    let textureCanvas = PKCanvasView()
-    
     let picker = PKToolPicker()
     
     @State private var isShowingToolPicker = true
@@ -34,7 +32,7 @@ struct ContentView: View {
     @State internal var renderer: SCNSceneRenderer?
 
     @State internal var originalTexture: UIImage?
-    @State internal var modifiedTexture: UIImage?
+//    @State internal var modifiedTexture: UIImage?
     @State private var textureViewSize = CGSize.zero
     
     @State internal var axes: SCNNode?
@@ -58,33 +56,11 @@ struct ContentView: View {
                 }
             }
         } detail: {
-//            HStack {
                 ZStack {
                     SceneViewContainer(scene: scene, renderer: $renderer, showWireframe: $showWireFrame)
-//                        .aspectRatio(1, contentMode: .fit)
                     PencilViewContainer(canvasView: modelCanvas, picker: picker, drawingDidChange: $drawingDidChange)
                         .disabled(modelCanMove)
                 }
-//                .aspectRatio(1, contentMode: .fit)
-//                .border(Color.primary)
-                
-//                ZStack {
-//                    Image(uiImage: originalTexture!)
-//                        .resizable()
-//                    PencilViewOverlay(canvasView: textureCanvas)
-//                        .disabled(true)
-//                }
-//                .background(
-//                    GeometryReader { geo in
-//                        Color.clear
-//                            .onChange(of: geo.size) { newValue in
-//                                textureViewSize = newValue
-//                            }
-//                    }
-//                )
-//                .aspectRatio(1, contentMode: .fit)
-//                .border(Color.primary)
-//            }
             .onChange(of: drawingDidChange) { _ in
                 let adjustedStrokes = modelCanvas.drawing.strokes.map { stroke -> PKStroke in
                     var stroke = stroke
@@ -119,36 +95,19 @@ struct ContentView: View {
                     return stroke
                 }
                 
-                textureCanvas.drawing.strokes.append(contentsOf: adjustedStrokes)
                 modelCanvas.drawing.strokes.removeAll()
                 
-//                let transformedDrawing = textureCanvas.drawing.image(from: textureCanvas.bounds, scale: 1)
-//                modifiedTexture = blend(texture: originalTexture, with: transformedDrawing)
-//
-//                let modifiedMaterial = SCNMaterial()
-//                modifiedMaterial.diffuse.contents = modifiedTexture
-//
-//                mainNode(in: scene)?.geometry?.materials = [modifiedMaterial]
-//                mainNode(in: scene)?.geometry?.firstMaterial?.diffuse.contents = modifiedTexture
-// REMOVE !!!!
-//                mainNode(in: scene)?.geometry?.materials = []
-
-
+                // TODO: why is is necessary to remove flickering when rotating model?
+                let material = SCNMaterial()
+                material.diffuse.contents = originalTexture
+                mainNode(in: scene)?.geometry?.materials = [material]
             }
             
             
             .navigationTitle("baloney")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-//                ToolbarItemGroup(placement: .primaryAction) {
-//                    ImportButton()
-//                    CaptureButton()
-//                    ExportButton()
-//                }
                 ToolbarItemGroup(placement: .primaryAction) {
-//                    UndoButton()
-//                    RedoButton()
-//                    EraseButton()
                     MoveDrawToggle()
                     RunButton()
                     TechnicalButton()
@@ -157,9 +116,6 @@ struct ContentView: View {
                     UndoButton()
                     RedoButton()
                     EraseButton()
-//                    MoveDrawToggle()
-//                    RunButton()
-//                    TechnicalButton()
                 }
             }
             .toolbarRole(.editor)
