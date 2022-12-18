@@ -22,10 +22,8 @@ struct Draw3DApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(originalTexture: UIImage(named: "KanaKanaTexture")!)
-            
+            ContentView()
                 .environmentObject(dm)
-
         }
     }
 }

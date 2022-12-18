@@ -61,15 +61,6 @@ extension SCNGeometryElement {
     }
 }
 
-extension Collection {
-    func chunked(into size: Index.Stride) -> [[Element]] where Index: Strideable {
-        precondition(size > 0, "Chunk size should be at least 1")
-        return stride(from: self.startIndex, to: self.endIndex, by: size).map {
-            Array(self[$0..<Swift.min($0.advanced(by: size), self.endIndex)])
-        }
-    }
-}
-
 extension ContiguousBytes {
     func objects<T>() -> [T] {
         withUnsafeBytes {
@@ -200,7 +191,8 @@ extension  SCNGeometry {
                 let x = buffer[start]
                 let y = buffer[start + 1]
                 let z = buffer[start + 2]
-                result.append(SCNVector3(x, y, z))
+                let length = sqrt(x*x + y*y + z*z)
+                result.append(SCNVector3(x / length, y / length, z / length))
             }
             return result
         }

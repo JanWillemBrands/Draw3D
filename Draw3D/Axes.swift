@@ -59,6 +59,8 @@ var axes: SCNNode {
     zT.position = SCNVector3(x: 0, y: 0, z: tipShift)
     node.addChildNode(zT)
     
+    node.name = "axes"
+    
     return node
 }
 
