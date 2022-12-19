@@ -81,9 +81,9 @@ class DrawingModel: ObservableObject {
         scene.rootNode.addChildNode(mainNode)
         
         // Create a duplicate node that doesn't get altered by the painting.
-        let copy = mainNode.clone()
-        copy.position = SCNVector3(0.0001, 0.0001, 0.0001)
-        scene.rootNode.addChildNode(copy)
+//        let copy = mainNode.clone()
+//        copy.position = SCNVector3(0.0001, 0.0001, 0.0001)
+//        scene.rootNode.addChildNode(copy)
         
         if let geometry = scene.rootNode.childNodes.first?.geometry {
             vertexSources = geometry.sources(for: .vertex)
@@ -122,23 +122,8 @@ class DrawingModel: ObservableObject {
             sources: vertexSources + normalSources + textureSources + colorSources,
             elements: elements
         )
-//        coloredGeometry.materials = materials
-//        coloredGeometry.materials.first?.emission.contents = materials.first?.emission.contents
-
-//        let newGeometry = SCNGeometry(
-//            sources: vertexSources + normalSources + textureSources,
-//            elements: elements
-//        )
-        
-//        let material = SCNMaterial()
-//        material.diffuse.contents = texture
-//
+        coloredGeometry.materials = materials
         mainNode.geometry = coloredGeometry
-//        scene.rootNode.childNodes.first?.geometry = newGeometry
-//        scene.rootNode.childNodes.first?.geometry?.materials = [material]
-//        scene.rootNode.childNodes.first?.geometry?.materials.first?.diffuse.contents = texture
-//        mainNode.geometry?.materials = materials
-//        scene.rootNode.childNodes.first?.geometry?.materials = materials
     }
     
 }
