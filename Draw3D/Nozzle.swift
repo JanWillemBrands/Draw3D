@@ -32,13 +32,17 @@ var nozzle: SCNNode {
     waterNode.eulerAngles = SCNVector3(x: 0, y: 0, z: 0)
     waterNode.position = SCNVector3(x: 0, y: Float(plasmaHeight+waterHeight/2), z: 0)
     node.addChildNode(waterNode)
+    
+    node.name = "nozzle"
 
     return node
 }
 
 struct Waypoint {
-    let position: SCNVector3
-    let orientation: SCNVector3
+//    let position: SCNVector3
+//    let orientation: SCNVector3
+    let position: SIMD3<Float>
+    let orientation: SIMD3<Float>
 }
 
 func move(node: SCNNode, along path: [Waypoint]) {
@@ -47,13 +51,16 @@ func move(node: SCNNode, along path: [Waypoint]) {
     for point in path {
         
         let reposition = SCNAction.run { node in
-            let originalOrientation = SIMD3(Float(0.0), Float(1.0), Float(0.0))
-            let desiredOrientation = SIMD3(x: point.orientation.x, y: point.orientation.y, z: point.orientation.z)
+//            let originalOrientation = SIMD3(Float(0.0), Float(1.0), Float(0.0))
+            let originalOrientation = SIMD3<Float>(0.0, 1.0, 0.0)
+//            let desiredOrientation = SIMD3(x: point.orientation.x, y: point.orientation.y, z: point.orientation.z)
+            let desiredOrientation = point.orientation
             let rotation = simd_quatf(from: originalOrientation, to: desiredOrientation)
             
             SCNTransaction.begin()
             SCNTransaction.animationDuration = 2
-            node.position = point.position
+//            node.position = point.position
+            node.simdPosition = point.position
             node.simdOrientation = rotation
             SCNTransaction.commit()
         }
@@ -69,32 +76,11 @@ func move(node: SCNNode, along path: [Waypoint]) {
     node.runAction(moveLoop)
 }
 
-//func move(node: SCNNode, along path: [Waypoint]) {
-//    var actionSequence: [SCNAction] = []
-//    for point in path {
-//        let move = SCNAction.move(to: point.position, duration: 0.5)
-//
-//        let xAngle = asin(SCNVector3(0,0,1).dot(vector: point.orientation))
-//        let zAngle = -asin(SCNVector3(1,0,0).dot(vector: point.orientation))
-//        let turn = SCNAction.rotateTo(
-//            x: CGFloat(xAngle),
-//            y: 0,
-//            z: CGFloat(zAngle),
-//            duration: 0.5,
-//            usesShortestUnitArc: true)
-//        actionSequence.append(SCNAction.group([move, turn]))
-//        actionSequence.append(SCNAction.wait(duration: 1))
-//    }
-//    let moveSequence = SCNAction.sequence(actionSequence)
-//    let moveLoop = SCNAction.repeatForever(moveSequence)
-//
-//    node.runAction(moveLoop)
-//}
-
 // simple greedy cheapest neighbour
 func optimized2(_ path: [Waypoint]) -> [Waypoint] {
-    let start = Waypoint(position: SCNVector3(0, 0, 0), orientation: SCNVector3(0, 0, 0))
-    
+//    let start = Waypoint(position: SCNVector3(0, 0, 0), orientation: SCNVector3(0, 0, 0))
+    let start = Waypoint(position: SIMD3(0, 0, 0), orientation: SIMD3(0, 0, 0))
+
     var chaotic = path
     var ordered = [start]
     
@@ -116,8 +102,9 @@ func optimized2(_ path: [Waypoint]) -> [Waypoint] {
 
 // cheapest insertion into partial path
 func optimized(_ path: [Waypoint]) -> [Waypoint] {
-    let start = Waypoint(position: SCNVector3(0, 0, 0), orientation: SCNVector3(0, 0, 0))
-    
+//    let start = Waypoint(position: SCNVector3(0, 0, 0), orientation: SCNVector3(0, 0, 0))
+    let start = Waypoint(position: SIMD3(0, 0, 0), orientation: SIMD3(0, 0, 0))
+
     var chaotic = path
     var ordered = [start]
         
@@ -125,13 +112,13 @@ func optimized(_ path: [Waypoint]) -> [Waypoint] {
         // get the next chaotic point
         let point = chaotic.removeFirst()
         // find the cheapest place to insert this point
-        var costs: [Double] = []
+        var costs: [Float] = []
         for i in ordered.indices {
             // create test paths by inserting the point at successive locations in the partial ordered path
             var testPath = ordered
             testPath.insert(point, at: i+1)
             // calculate and store the total cost for this test path
-            var total = 0.0
+            var total: Float = 0.0
             if testPath.count > 1 {
                 var a = testPath[0]
                 for i in 1 ..< testPath.count {
@@ -152,13 +139,13 @@ func optimized(_ path: [Waypoint]) -> [Waypoint] {
     return ordered
 }
 
-func cost(A: Waypoint, B: Waypoint) -> Double {
-    let costPerMeter = 1.0
-    let costPerRadian = 0.1
+func cost(A: Waypoint, B: Waypoint) -> Float {
+    // TODO: review cost parameters
+    let costPerMeter: Float = 1.0   // Fanuc CRX-10iA travels ~ 1 m/s
+    let costPerRadian: Float = 0.1  // Fanuc CRX-10iA rotates ~ 360/s < 0.1 rad/s
     
-    let positionCost = Double(A.position.distance(vector: B.position)) * costPerMeter
-    // TODO: review cost function
-    let _ = abs(asin(Double(A.orientation.dot(vector: B.orientation)))) * costPerRadian
+    let positionCost = length(A.position - B.position) * costPerMeter
+    let orientationCost = acos(dot(normalize(A.orientation), normalize(B.orientation))) * costPerRadian
     
-    return positionCost // + rotationCost
+    return positionCost + orientationCost
 }

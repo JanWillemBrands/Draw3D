@@ -4,8 +4,8 @@
 //
 //  Created by Johannes Brands on 08/11/2022.
 //
-
 import SceneKit
+import SwiftUI
 
 var axes: SCNNode {
     let node = SCNNode()
@@ -58,6 +58,8 @@ var axes: SCNNode {
     zT.eulerAngles = SCNVector3(x: .pi/2, y: 0, z: 0)
     zT.position = SCNVector3(x: 0, y: 0, z: tipShift)
     node.addChildNode(zT)
+    
+    node.name = "axes"
     
     return node
 }

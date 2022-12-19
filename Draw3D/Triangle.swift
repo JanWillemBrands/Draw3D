@@ -12,17 +12,27 @@ import SceneKit
 var triangleScene: SCNScene {
     let scene = SCNScene()
     
-    scene.rootNode.addChildNode(triangleNode)
+    let t1 = triangleNode
+    let t2 = triangleNode
+    let t3 = triangleNode
     
+    t1.position = SCNVector3(0, 0, 0)
+    t2.position = SCNVector3(0.2, 0, 0)
+    t3.position = SCNVector3(0, 0.2, 0)
+
+    scene.rootNode.addChildNode(t1)
+    scene.rootNode.addChildNode(t2)
+    scene.rootNode.addChildNode(t3)
+
     return scene
 }
 
 var triangleNode: SCNNode {
     // Vertices
-    let vertices: [SCNVector3] = [SCNVector3(0, 0, 0),
-                                  SCNVector3(0, 1, 0),
-                                  SCNVector3(1, 0, 0),
-                                  SCNVector3(1, 1, 0),
+    let vertices: [SCNVector3] = [SCNVector3(0.0, 0.0, 0.0),
+                                  SCNVector3(0.0, 0.1, 0.0),
+                                  SCNVector3(0.1, 0.0, 0.0),
+                                  SCNVector3(0.1, 0.1, 0.0),
     ]
     let vertexData = Data(
         bytes: vertices,
@@ -111,6 +121,8 @@ var triangleNode: SCNNode {
     
     let node = SCNNode(geometry: geometry)
     node.position = SCNVector3(0, 0, 0)
+    
+    node.name = "triangle"
     
     return node
 }

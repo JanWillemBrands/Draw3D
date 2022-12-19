@@ -14,8 +14,8 @@ extension ContentView {
     
     var stl: UTType { UTType(filenameExtension: "stl")! }
     var obj: UTType { UTType(filenameExtension: "obj")! }
-//    var mtl: UTType { UTType(filenameExtension: "mtl")! }
-
+    var mtl: UTType { UTType(filenameExtension: "mtl")! }
+    
     @ViewBuilder func ImportButton() -> some View {
         Button(
             action: { isPresentingFileImport = true},
@@ -27,7 +27,7 @@ extension ContentView {
                 modelCanvas.drawing = PKDrawing()
                 if url.startAccessingSecurityScopedResource()
                 {
-                    (scene, originalTexture) = dm.getModelFrom(url)
+                    dm.getModelFrom(url)
                     url.stopAccessingSecurityScopedResource()
                 }
             case .failure(let error):
@@ -89,18 +89,20 @@ extension ContentView {
     @ViewBuilder func RunButton() -> some View {
         Button(
             action: {
-                let paintedVertexIndices: [Int] = colors.enumerated().compactMap { (index, color) in
+                let paintedVertexIndices: [Int] = dm.colors.enumerated().compactMap { (index, color) in
                     color.x == 1 ? index : nil
                 }
                 let path: [Waypoint] = paintedVertexIndices.map { index in
-                    Waypoint(position: vertices[index], orientation: normals[index])
+                    Waypoint(position: SIMD3<Float>(dm.vertices[index]), orientation: SIMD3<Float>(dm.normals[index]))
                 }
                 
                 let optimalPath = optimized(path)
                 
-                nozzle = addNozzle(to: scene)
-                move(node: nozzle!, along: optimalPath)
-//                removeNozzle(node: nozzle)
+                let nzl = nozzle
+                dm.scene.rootNode.addChildNode(nzl)
+                move(node: nzl, along: optimalPath)
+                // Do not yet remove the nozzle in this closure, the move animation extends beyond it.
+                // scene?.rootNode.childNode(withName: "nozzle", recursively: true)?.removeFromParentNode()
             },
             label: { Label("Run", systemImage: "figure.run") }
         )
@@ -111,14 +113,10 @@ extension ContentView {
             action: {
                 debugPrint("PoV \(String(describing: renderer?.pointOfView))")
                 showWireFrame.toggle()
-                if let scene {
-                    if showWireFrame {
-                        axes = addAxes(to: scene)
-                        nozzle = addNozzle(to: scene)
-                    } else {
-//                        removeAxes(node: axes)
-                        removeNozzle(node: nozzle)
-                    }
+                if showWireFrame {
+                    dm.scene.rootNode.addChildNode(axes)
+                } else {
+                    dm.scene.rootNode.childNode(withName: "axes", recursively: true)?.removeFromParentNode()
                 }
             },
             label: { Label("Ruler", systemImage: "ruler") }

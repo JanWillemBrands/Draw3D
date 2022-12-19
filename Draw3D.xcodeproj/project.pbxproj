@@ -17,9 +17,9 @@
 		4E5B0723290AB138006B7B3B /* PencilViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5B0722290AB138006B7B3B /* PencilViewContainer.swift */; };
 		4E5B0727290ADD7F006B7B3B /* SceneViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5B0726290ADD7F006B7B3B /* SceneViewContainer.swift */; };
 		4E5B0729290B12B2006B7B3B /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5B0728290B12B2006B7B3B /* Utilities.swift */; };
+		4E71C4CC294D4A9100065EF6 /* toy_robot_vintage.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 4E71C4CB294D4A9100065EF6 /* toy_robot_vintage.usdz */; };
+		4E71C4CE294D4ACE00065EF6 /* 3D_CRX-10iA_v02.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 4E71C4CD294D4ACE00065EF6 /* 3D_CRX-10iA_v02.usdz */; };
 		4E74E0A92911565E00E0EF03 /* ToolbarButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E74E0A82911565E00E0EF03 /* ToolbarButtons.swift */; };
-		4E7A6F53291CE5FA00CFA84F /* SCNVector3Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E7A6F52291CE5FA00CFA84F /* SCNVector3Extensions.swift */; };
-		4E7AEF02290E68370069D6A1 /* PencilViewOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E7AEF01290E68370069D6A1 /* PencilViewOverlay.swift */; };
 		4E8CE6CC2915341900975821 /* VertexModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E8CE6CB2915341900975821 /* VertexModel.swift */; };
 		4EBD970C2941A70B00BD7BD1 /* DrawingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EBD970B2941A70B00BD7BD1 /* DrawingModel.swift */; };
 /* End PBXBuildFile section */
@@ -37,9 +37,9 @@
 		4E5B0726290ADD7F006B7B3B /* SceneViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneViewContainer.swift; sourceTree = "<group>"; };
 		4E5B0728290B12B2006B7B3B /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		4E6E2695292BA9230022DE11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		4E71C4CB294D4A9100065EF6 /* toy_robot_vintage.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = toy_robot_vintage.usdz; sourceTree = "<group>"; };
+		4E71C4CD294D4ACE00065EF6 /* 3D_CRX-10iA_v02.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "3D_CRX-10iA_v02.usdz"; sourceTree = "<group>"; };
 		4E74E0A82911565E00E0EF03 /* ToolbarButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarButtons.swift; sourceTree = "<group>"; };
-		4E7A6F52291CE5FA00CFA84F /* SCNVector3Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SCNVector3Extensions.swift; sourceTree = "<group>"; };
-		4E7AEF01290E68370069D6A1 /* PencilViewOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PencilViewOverlay.swift; sourceTree = "<group>"; };
 		4E8CE6CB2915341900975821 /* VertexModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VertexModel.swift; sourceTree = "<group>"; };
 		4EBD96F72931766B00BD7BD1 /* Draw3D.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Draw3D.entitlements; sourceTree = "<group>"; };
 		4EBD970B2941A70B00BD7BD1 /* DrawingModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingModel.swift; sourceTree = "<group>"; };
@@ -75,6 +75,8 @@
 		4E2B1E832909BE7A00FF4A71 /* Draw3D */ = {
 			isa = PBXGroup;
 			children = (
+				4E71C4CB294D4A9100065EF6 /* toy_robot_vintage.usdz */,
+				4E71C4CD294D4ACE00065EF6 /* 3D_CRX-10iA_v02.usdz */,
 				4EBD96F72931766B00BD7BD1 /* Draw3D.entitlements */,
 				4E6E2695292BA9230022DE11 /* Info.plist */,
 				4E3826DB291A6090001CF823 /* Axes.swift */,
@@ -83,9 +85,7 @@
 				4EBD970B2941A70B00BD7BD1 /* DrawingModel.swift */,
 				4E3826DD291A60B9001CF823 /* Nozzle.swift */,
 				4E5B0722290AB138006B7B3B /* PencilViewContainer.swift */,
-				4E7AEF01290E68370069D6A1 /* PencilViewOverlay.swift */,
 				4E5B0726290ADD7F006B7B3B /* SceneViewContainer.swift */,
-				4E7A6F52291CE5FA00CFA84F /* SCNVector3Extensions.swift */,
 				4E74E0A82911565E00E0EF03 /* ToolbarButtons.swift */,
 				4E3826D9291A5EDB001CF823 /* Triangle.swift */,
 				4E5B0728290B12B2006B7B3B /* Utilities.swift */,
@@ -164,6 +164,8 @@
 			files = (
 				4E2B1E8C2909BE7C00FF4A71 /* Preview Assets.xcassets in Resources */,
 				4E2B1E892909BE7C00FF4A71 /* Assets.xcassets in Resources */,
+				4E71C4CE294D4ACE00065EF6 /* 3D_CRX-10iA_v02.usdz in Resources */,
+				4E71C4CC294D4A9100065EF6 /* toy_robot_vintage.usdz in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -181,12 +183,10 @@
 				4E5B0727290ADD7F006B7B3B /* SceneViewContainer.swift in Sources */,
 				4E2B1E872909BE7A00FF4A71 /* ContentView.swift in Sources */,
 				4E5B0723290AB138006B7B3B /* PencilViewContainer.swift in Sources */,
-				4E7AEF02290E68370069D6A1 /* PencilViewOverlay.swift in Sources */,
 				4E8CE6CC2915341900975821 /* VertexModel.swift in Sources */,
 				4EBD970C2941A70B00BD7BD1 /* DrawingModel.swift in Sources */,
 				4E2B1E852909BE7A00FF4A71 /* Draw3DApp.swift in Sources */,
 				4E3826DA291A5EDB001CF823 /* Triangle.swift in Sources */,
-				4E7A6F53291CE5FA00CFA84F /* SCNVector3Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
