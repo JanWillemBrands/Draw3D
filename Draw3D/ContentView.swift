@@ -52,7 +52,7 @@ struct ContentView: View {
             .onChange(of: drawingDidChange) { _ in
                 var dots: [PKStroke] = []
                 for stroke in modelCanvas.drawing.strokes {
-                    for point in stroke.path.interpolatedPoints(by: .distance(2)) {
+                    for point in stroke.path.interpolatedPoints(by: .distance(10)) {
                         dm.changeColorOfFaceRenderedAtScreenCoordinate(with: renderer, of: point.location)
                         let ink = PKInk(.pen, color: .systemYellow)
                         let dotPoint = PKStrokePoint(

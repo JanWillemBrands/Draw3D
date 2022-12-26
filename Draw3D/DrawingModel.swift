@@ -36,21 +36,22 @@ class DrawingModel: ObservableObject {
     
     func getModelFrom(_ url: URL) {
         
-        // The below approach is good for .usdz files that may become interleaved when initialized as SCNScene directly.
-        // CAUTION: MAJOR HACK to deal with USDZ model that contains <SCNGeometryElement: 0x60000382b800 | 25000 x triangle, 2 channels, int indices>
-        // Reading a .usdz file from SCNScene init will yield INTERLEAVED geometry elements.
-        // Furtunately reading a .usdz file from MDLAsset init will not be interleaved.
-        // MDLAsset can be easily converted into SCNScene.
-        asset = MDLAsset(url: url)
-        asset.loadTextures()
-        scene = SCNScene(mdlAsset: asset)
-        
-        // TODO:
-        // The below approach is good for .obj and .stl files that may not have the right units and may have the wrong axes orientation.
-        //        scene = try! SCNScene(url: url, options: [
-        //            .checkConsistency: true,
-        //            .convertToYUp: true,
-        //            .convertUnitsToMeters: true])
+        if url.pathExtension == "usdz" {
+            // The below approach is good for .usdz files that may become interleaved when initialized as SCNScene directly.
+            // CAUTION: MAJOR HACK to deal with USDZ model that contains <SCNGeometryElement: 0x60000382b800 | 25000 x triangle, 2 channels, int indices>
+            // Reading a .usdz file from SCNScene init will yield INTERLEAVED geometry elements.
+            // Furtunately reading a .usdz file from MDLAsset init will not be interleaved.
+            asset = MDLAsset(url: url)
+            asset.loadTextures()
+            scene = SCNScene(mdlAsset: asset)
+        } else {
+            // The below approach is good for .obj and .stl files that may not have the right units and may have the wrong axes orientation.
+            scene = try! SCNScene(url: url, options: [
+                .checkConsistency: true,
+                .convertToYUp: true,
+                .convertUnitsToMeters: true]
+            )
+        }
         
         let mdlMeshes = asset.childObjects(of: MDLMesh.self) as? [MDLMesh]
         let firstMesh = mdlMeshes?.first
@@ -67,9 +68,8 @@ class DrawingModel: ObservableObject {
         
         //        scene?.rootNode.geometry?.firstMaterial?.lightingModel = .physicallyBased
         
-        // Make the main node  the first node with a non-nil geometry.
+        // Make the main node the first node with a non-nil geometry.
         scene.rootNode.enumerateHierarchy { child, stop in
-            print(child.debugDescription)
             if child.geometry != nil {
                 mainNode = child
                 stop.pointee = true
@@ -81,9 +81,14 @@ class DrawingModel: ObservableObject {
         scene.rootNode.addChildNode(mainNode)
         
         // Create a duplicate node that doesn't get altered by the painting.
-//        let copy = mainNode.clone()
-//        copy.position = SCNVector3(0.0001, 0.0001, 0.0001)
-//        scene.rootNode.addChildNode(copy)
+        let copy = mainNode.clone()
+        copy.position = SCNVector3(0.01, 0.01, 0.01)
+        scene.rootNode.addChildNode(copy)
+        
+        // dump the scene tree
+        scene.rootNode.enumerateHierarchy { child, stop in
+            print("dump", child.debugDescription)
+        }
         
         if let geometry = scene.rootNode.childNodes.first?.geometry {
             vertexSources = geometry.sources(for: .vertex)
