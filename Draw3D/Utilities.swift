@@ -78,9 +78,11 @@ func findTextureHits(with renderer: SCNSceneRenderer?, of point: CGPoint) -> [CG
 
 public var vertices: [SCNVector3] = []
 public var normals: [SCNVector3] = []
-public var colors: [SCNVector4] = []
-public var hexes: [(Int32, Int32, Int32, Int32, Int32, Int32)] = []
-public var triangles: [(Int32, Int32, Int32)] = []
+public var vertexColor: [SCNVector4] = []
+public var indices: [Int32] = []
+
+//public var hexes: [(Int32, Int32, Int32, Int32, Int32, Int32)] = []
+//public var triangles: [(Int32, Int32, Int32)] = []
 
 func textureCoordinateFromScreenCoordinate(with renderer: SCNSceneRenderer?, of point: CGPoint) -> CGPoint? {
     
@@ -89,68 +91,68 @@ func textureCoordinateFromScreenCoordinate(with renderer: SCNSceneRenderer?, of 
     guard let hit = renderer?.hitTest(point, options: hitOptions).first else { return nil }
     
     if let geometry = hit.node.geometry {
-        // get the sources from the loaded .USDZ file as SCNGeometrySource.
-        let vertexSources = geometry.sources(for: .vertex)          // there is always exactly one vertext source.
-        let normalSources = geometry.sources(for: .normal)          // there may be one or zero normal source.
-        let textureSources = geometry.sources(for: .texcoord)          // there may be one or zero normal source.
-//        let colorSources = geometry.sources(for: .color)            // there may be one or zero color source.
-//        let elements = geometry.elements                            // there is always at least one element.
+
+//        geometry.subdivisionLevel = 3
 
         // get the sources from the loaded .USDZ file as array of SCNVector3.
         vertices = geometry.vertices()
+        print(vertices[...3])
         normals = geometry.normals()
-        if colors.isEmpty {
-            colors = [SCNVector4](repeating: SCNVector4(0, 0, 0, 0), count: vertices.count)
+        
+        let vertexCount = geometry.sources(for: .vertex).first?.vectorCount ?? 0
+        let transparent = SCNVector4(0, 0, 0, 0)
+        let opaqueRed   = SCNVector4(1, 0, 0, 1)
+
+        if vertexColor.isEmpty {
+            vertexColor = Array(repeating: transparent, count: vertexCount)
         }
 
-        // CAUTION: MAJOR HACK to deal with USDZ model that contains <SCNGeometryElement: 0x60000382b800 | 25000 x triangle, 2 channels, int indices>
-        print(geometry.elements.first!.bytes[0...63])
-        print(geometry.elements.first!.triangles[0...15])
-        print(geometry.elements.first!.hexes[0...7])
+        // Ignore all gemetry elements except the first one.
+        let firstElement = geometry.element(at: 0)
         
-        print("mirror ", String(reflecting: geometry.elements.first))
-
-//        triangles = geometry.elements.first!.triangles
-//        let hitTriangle = triangles[hit.faceIndex]
-//        colors[Int(hitTriangle.0)] = SCNVector4(1, 0, 0, 1)
-//        colors[Int(hitTriangle.1)] = SCNVector4(1, 0, 0, 1)
-//        colors[Int(hitTriangle.2)] = SCNVector4(1, 0, 0, 1)
-
-
-        // working !!!
+        // Geometry vertex 3D coordinates are Int32 indexes into the vertices array of SCNVector3.
+        indices = firstElement.data.withUnsafeBytes { ptr in
+            [Int32].init(ptr.bindMemory(to: Int32.self))
+        }
         
-        hexes = geometry.elements.first!.hexes
-        let hitHex = hexes[hit.faceIndex]
-        print("hitHex", hitHex)
-
-        // Color the vertices of the hit triangle red.
-        colors[Int(hitHex.0)] = SCNVector4(1, 0, 0, 1)
-        colors[Int(hitHex.2)] = SCNVector4(1, 0, 0, 1)
-        colors[Int(hitHex.4)] = SCNVector4(1, 0, 0, 1)
+        // Handle only geometries with triangle faces/primitives.
+        guard firstElement.primitiveType == .triangles else { return nil }
+        // CAUTION: MAJOR HACK using private methods to deal with USDZ model that contains <SCNGeometryElement: 0x60000382b800 | 25000 x triangle, 2 channels, int indices>
+        var channelCount = 1
+        if firstElement.hasInterleavedIndicesChannels() {
+            channelCount = firstElement.indicesChannelCount()
+        }
+        let stepsize = 3 * channelCount
         
-        // working !!!
-
-//        // Color the other hex vertices green.
-//        colors[Int(hitHex.1)] = SCNVector4(0, 1, 0, 1)
-//        colors[Int(hitHex.3)] = SCNVector4(0, 1, 0, 1)
-//        colors[Int(hitHex.5)] = SCNVector4(0, 1, 0, 1)
-
-        // Maybe the vertices are interleaved with the normals?
-//        print("n1", normals[Int(hitHex.1)])
-//        print("n2", normals[Int(hitHex.3)])
-//        print("n3", normals[Int(hitHex.5)])
-
-//        let newVertexSource = SCNGeometrySource(vertices: vertices)
-//        let newNormalSource = SCNGeometrySource(normals: normals)
-        let newColorSource = SCNGeometrySource(colors: colors)
-//        let newColorSource = SCNGeometrySource(data: colors, semantic: .color)
+        let corner1 = hit.faceIndex * stepsize
+        let corner2 = hit.faceIndex * stepsize + channelCount
+        let corner3 = hit.faceIndex * stepsize + channelCount * 2
         
+        // Color the vertices (corners) of the triangle face that was hit.
+        vertexColor[Int(indices[corner1])] = opaqueRed
+        vertexColor[Int(indices[corner2])] = opaqueRed
+        vertexColor[Int(indices[corner3])] = opaqueRed
+
+        // Convert the array of paint colors into a geometry color source.
+        let paintSource = SCNGeometrySource(
+            data: vertexColor.withUnsafeBytes { ptr in .init(ptr) },
+            semantic: .color,
+            vectorCount: vertexColor.count,
+            usesFloatComponents: true,
+            componentsPerVector: 4,
+            bytesPerComponent: MemoryLayout<Float>.size,
+            dataOffset: 0,
+            dataStride: MemoryLayout<SCNVector4>.size)
+
         let newGeometry = SCNGeometry(
-            sources: vertexSources + normalSources + textureSources + [newColorSource],
+            sources: geometry.sources + [paintSource],
             elements: geometry.elements
         )
 //        hit.node.geometry = newGeometry
+        
+        // Assign the new geometry to a node that is above the node that contains the original materials.
         renderer?.scene?.rootNode.childNodes.first?.geometry = newGeometry
+                
 //        renderer?.scene?.rootNode.geometry = newGeometry
     }
     

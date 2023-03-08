@@ -89,7 +89,7 @@ extension ContentView {
     @ViewBuilder func RunButton() -> some View {
         Button(
             action: {
-                let paintedVertexIndices: [Int] = colors.enumerated().compactMap { (index, color) in
+                let paintedVertexIndices: [Int] = vertexColor.enumerated().compactMap { (index, color) in
                     color.x == 1 ? index : nil
                 }
                 let path: [Waypoint] = paintedVertexIndices.map { index in

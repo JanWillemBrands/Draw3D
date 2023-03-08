@@ -71,57 +71,47 @@ struct ContentView: View {
                 }
             
             .onChange(of: drawingDidChange) { _ in
-                let adjustedStrokes = modelCanvas.drawing.strokes.map { stroke -> PKStroke in
-                    var stroke = stroke
-                    
-                    // TODO: REMOVE !!!
-                    stroke.ink = PKInk(.pen, color: .clear)
-//                    stroke.ink = PKInk(.pen, color: .green)
-
-                    let newPoints = stroke.path.indices.compactMap { index -> PKStrokePoint? in
+                
+//                let adjustedStrokes = modelCanvas.drawing.strokes.map { stroke -> PKStroke in
+//                    var stroke = stroke
+//
+//                    stroke.ink = PKInk(.pen, color: .clear)
+//
+//                    let newPoints = stroke.path.indices.compactMap { index -> PKStrokePoint? in
+//                        let point = stroke.path[index]
+//
+//                        guard let texturePoint = textureCoordinateFromScreenCoordinate(with: renderer, of: point.location) else { return nil }
+//
+//                        let newLocation = CGPoint(x: textureViewSize.width * texturePoint.x, y: textureViewSize.height * texturePoint.y)
+//
+//                        let adjustedPoint = PKStrokePoint(
+//                            location: newLocation,
+//                            timeOffset: point.timeOffset,
+//                            size: point.size,
+//                            opacity: point.opacity,
+//                            force: point.force,
+//                            azimuth: point.azimuth,
+//                            altitude: point.altitude)
+//
+//                        return adjustedPoint
+//                    }
+//
+//                    stroke.path = PKStrokePath(
+//                        controlPoints: newPoints,
+//                        creationDate: stroke.path.creationDate)
+//
+//                    return stroke
+//                }
+                
+                for stroke in modelCanvas.drawing.strokes {
+                    for index in stroke.path.indices {
                         let point = stroke.path[index]
-                        
-                        guard let texturePoint = textureCoordinateFromScreenCoordinate(with: renderer, of: point.location) else { return nil }
-                        
-                        let newLocation = CGPoint(x: textureViewSize.width * texturePoint.x, y: textureViewSize.height * texturePoint.y)
-
-                        let adjustedPoint = PKStrokePoint(
-                            location: newLocation,
-                            timeOffset: point.timeOffset,
-                            size: point.size,
-                            opacity: point.opacity,
-                            force: point.force,
-                            azimuth: point.azimuth,
-                            altitude: point.altitude)
-                        
-                        return adjustedPoint
+                        _ = textureCoordinateFromScreenCoordinate(with: renderer, of: point.location)
                     }
-                    
-                    stroke.path = PKStrokePath(
-                        controlPoints: newPoints,
-                        creationDate: stroke.path.creationDate)
-                    
-                    return stroke
                 }
                 
                 modelCanvas.drawing.strokes.removeAll()
                 
-                print("dump m", mainNode(in: scene)?.geometry.debugDescription as Any)
-
-                // TODO: why is is necessary to remove flickering when rotating model?
-//                let material = SCNMaterial()
-//                material.diffuse.contents = originalTexture
-//                mainNode(in: scene)?.geometry?.materials = [material]
-
-//                let materials = mainNode(in: scene)!.geometry!.materials
-//                mainNode(in: scene)?.geometry?.materials = materials
-                
-                print("dump m", mainNode(in: scene)?.geometry?.debugDescription as Any)
-                
-                print("dump")
-                scene?.rootNode.enumerateHierarchy { child, stop in
-                    print("dump", child.debugDescription)
-                }
             }
             
             

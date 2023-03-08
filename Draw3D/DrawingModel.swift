@@ -7,8 +7,8 @@
 
 //import SwiftUI
 import SceneKit
-//import SceneKit.ModelIO
-import ModelIO
+import SceneKit.ModelIO
+//import ModelIO
 
 class DrawingModel: ObservableObject {
     
@@ -23,10 +23,8 @@ class DrawingModel: ObservableObject {
         // Load the SCNScene directly, which works for .usdz files.
         scene = try? SCNScene(url: url, options: [.checkConsistency: true])
         
-        // second: load the MDLAsset
+        // Load the MDLAsset and the textures.
         mdlAsset = MDLAsset(url: url)
-        
-        // Getting the texture requires first loading them.
         mdlAsset.loadTextures()
         
         // Alternatively:
@@ -50,7 +48,29 @@ class DrawingModel: ObservableObject {
         // TODO: why is this necessary to remove flickering when rotating model?
         let material = SCNMaterial()
         material.diffuse.contents = texture
+                
+        print("dump bl")
+        scene?.rootNode.enumerateHierarchy { child, stop in
+            print("dump bl", child.debugDescription)
+            if let geometry = child.geometry {
+                print("dump bl", geometry.materials)
+            }
+        }
+
         mainNode(in: scene)?.geometry?.materials = [material]
+        
+//        mainNode(in: scene)?.geometry?.firstMaterial?.lightingModel = .physicallyBased
+
+        print("dump m", mainNode(in: scene)!.geometry!)
+        
+        print("dump al")
+        scene?.rootNode.enumerateHierarchy { child, stop in
+            print("dump al", child.debugDescription)
+            if let geometry = child.geometry {
+                print("dump al", geometry.materials)
+            }
+        }
+
 
         return (scene, texture)
     }
