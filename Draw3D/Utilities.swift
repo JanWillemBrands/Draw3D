@@ -8,81 +8,17 @@
 import SwiftUI
 import SceneKit
 
-func setFillMode(of node: SCNNode, to fillMode: SCNFillMode) {
-    node.enumerateHierarchy { child, stop in
-        child.geometry?.firstMaterial?.fillMode = fillMode
-//        child.geometry?.firstMaterial?.lightingModel = .physicallyBased
-    }
-}
-
-func emitWhite(from node: SCNNode?) {
-    node?.enumerateHierarchy { child, stop in
-        child.geometry?.firstMaterial?.emission.contents = UIColor.white
-//        child.geometry?.firstMaterial?.lightingModel = .physicallyBased
-    }
-}
-
-func emitClear(from node: SCNNode?) {
-    node?.enumerateHierarchy { child, stop in
-        child.geometry?.firstMaterial?.emission.contents = UIColor.clear
-//        child.geometry?.firstMaterial?.lightingModel = .physicallyBased
-    }
-}
-
+// TODO: only emit white from the original geometry node, not from anything else.
+// TODO: give the original and paintnodes a "name" !!!
 func mainNode(in scene: SCNScene?) -> SCNNode? {
-    // Alternatively:
-//    return scene?.rootNode.childNodes.first
-    
-    let node = scene?.rootNode.childNode(withName: "g0", recursively: true)
-    //    debugPrint("mainNode 'g0': \(String(describing: node))")
-    return node
-}
-
-func addAxes(to scene: SCNScene?) -> SCNNode? {
-    let a = axes
-    scene?.rootNode.addChildNode(a)
-    return a
-}
-
-func removeAxes(node: SCNNode?) {
-    node?.removeFromParentNode()
-}
-
-func addNozzle(to scene: SCNScene?) -> SCNNode? {
-    let n = nozzle
-    scene?.rootNode.addChildNode(n)
-    return n
-}
-
-func removeNozzle(node: SCNNode?) {
-    node?.removeFromParentNode()
-}
-
-struct VerticalLabelStyle: LabelStyle {
-    func makeBody(configuration: Configuration) -> some View {
-#if os(iOS)
-        configuration.icon
-#else
-        Label(configuration.title, image: configuration.icon)
-#endif
-    }
-}
-
-func findTextureHits(with renderer: SCNSceneRenderer?, of point: CGPoint) -> [CGPoint]? {
-    let hitOptions = [SCNHitTestOption.searchMode: SCNHitTestSearchMode.closest.rawValue]
-    
-    return renderer?.hitTest(point, options: hitOptions).map { hit in
-        hit.textureCoordinates(withMappingChannel: 0)
-    }
+    return scene?.rootNode.childNode(withName: "g0", recursively: true)
+//    return scene?.rootNode.childNode(withName: "copynode", recursively: true)
 }
 
 public var vertices: [SCNVector3] = []
 public var normals: [SCNVector3] = []
 public var vertexColor: [SCNVector4] = []
 public var indices: [Int32] = []
-
-//public var hexes: [(Int32, Int32, Int32, Int32, Int32, Int32)] = []
-//public var triangles: [(Int32, Int32, Int32)] = []
 
 func textureCoordinateFromScreenCoordinate(with renderer: SCNSceneRenderer?, of point: CGPoint) -> CGPoint? {
     
@@ -158,63 +94,3 @@ func textureCoordinateFromScreenCoordinate(with renderer: SCNSceneRenderer?, of 
     
     return hit.textureCoordinates(withMappingChannel: 0)
 }
-
-func apply(_ hits: [CGPoint]?, to texture: UIImage?) -> UIImage? {
-    guard let hits else { return nil }
-    
-    var img: UIImage?
-    if let texture {
-        let size = texture.size
-        let area = CGRect(x: 0, y: 0, width: size.width, height: size.height)
-        UIGraphicsBeginImageContext(size)
-        
-        texture.draw(in: area)
-        
-        let ctx = UIGraphicsGetCurrentContext()!
-        
-        for hit in hits {
-            //                    ctx.saveGState()
-            let hitPoint = CGPoint(x: hit.x * size.width, y: hit.y * size.height)
-            logger.debug("hitPoint at: \(hitPoint.debugDescription)")
-            let rect = CGRect(x: hitPoint.x-10, y: hitPoint.y-10, width: 20, height: 20)
-            ctx.setFillColor(UIColor.tintColor.cgColor)
-            ctx.fillEllipse(in: rect)
-            //                    ctx.restoreGState()
-        }
-        
-        img = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-    }
-    return img
-}
-
-func blend(texture: UIImage?, with image: UIImage?) -> UIImage? {
-    var img: UIImage?
-    if let texture {
-        let size = texture.size
-        let area = CGRect(x: 0, y: 0, width: size.width, height: size.height)
-        UIGraphicsBeginImageContext(size)
-        
-        texture.draw(in: area)
-        
-        image?.draw(in: area, blendMode: .normal, alpha: 1)
-        
-        //        let ctx = UIGraphicsGetCurrentContext()!
-        //        ctx.saveGState()
-        //        let rect = CGRect(x: 0, y: 0, width: 512, height: 512)
-        //        ctx.setFillColor(UIColor.tintColor.cgColor)
-        //        ctx.fillEllipse(in: rect)
-        //        ctx.restoreGState()
-        
-        img = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-    }
-    return img
-}
-
-//func UItoCI() {
-//    let ui = UIImage(named: "apple")
-//    if let cg = ui?.cgImage {
-//        let ci = CIImage(cgImage: cg)
-//    }
-//}

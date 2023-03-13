@@ -9,6 +9,7 @@ import SceneKit
 
 var axes: SCNNode {
     let node = SCNNode()
+    node.name = "axes"
     
     let shaftRadius = 0.003
     let tipLength = 10 * shaftRadius
@@ -62,5 +63,10 @@ var axes: SCNNode {
     return node
 }
 
+func addAxes(to scene: SCNScene) {
+    scene.rootNode.addChildNode(axes)
+}
 
-
+func removeAxes(from scene: SCNScene) {
+    scene.rootNode.childNode(withName: "axes", recursively: true)?.removeFromParentNode()
+}

@@ -9,6 +9,7 @@ import SceneKit
 
 var nozzle: SCNNode {
     let node = SCNNode()
+    node.name = "nozzle"
     
     let nozzleRadius = 0.01
     let plasmaHeight = 0.01
@@ -16,6 +17,8 @@ var nozzle: SCNNode {
     
     // TODO: make nozzle a subclass of SCNNode with a settable properties like color and speed
     let plasmaColor = UIColor.orange
+    
+    //    @Published var plasmaActive = false
     
     let plasma = SCNCylinder(radius: nozzleRadius, height: plasmaHeight)
     plasma.firstMaterial?.diffuse.contents = plasmaColor
@@ -35,6 +38,17 @@ var nozzle: SCNNode {
 
     return node
 }
+
+func addNozzle(to scene: SCNScene) {
+    scene.rootNode.addChildNode(nozzle)
+}
+
+func removeNozzle(from scene: SCNScene) {
+    scene.rootNode.childNode(withName: "nozzle", recursively: true)?.removeFromParentNode()
+}
+
+
+
 
 struct Waypoint {
     let position: SCNVector3

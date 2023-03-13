@@ -12,6 +12,7 @@ struct SceneViewContainer: UIViewRepresentable {
     var view = SCNView()
 
     var scene: SCNScene?
+    
     @Binding var renderer: SCNSceneRenderer?
     
     @Binding var showWireframe: Bool
@@ -29,12 +30,19 @@ struct SceneViewContainer: UIViewRepresentable {
         if showWireframe {
             uiView.showsStatistics = true
             uiView.debugOptions = [.renderAsWireframe]
-            emitWhite(from: mainNode(in: uiView.scene))
+            
+            // To avoid (un)coloring the axes and nozzle, we only change the mainnode.
+            mainNode(in: uiView.scene)?.enumerateHierarchy { child, stop in
+                child.geometry?.firstMaterial?.emission.contents = UIColor.white
+            }
             uiView.backgroundColor = UIColor.black
         } else {
             uiView.showsStatistics = false
             uiView.debugOptions = []
-            emitClear(from: mainNode(in: uiView.scene))
+            
+            mainNode(in: uiView.scene)?.enumerateHierarchy { child, stop in
+                child.geometry?.firstMaterial?.emission.contents = UIColor.clear
+            }
             uiView.backgroundColor = UIColor.white
         }
     }

@@ -23,7 +23,6 @@
 		4E7A6F53291CE5FA00CFA84F /* SCNVector3Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E7A6F52291CE5FA00CFA84F /* SCNVector3Extensions.swift */; };
 		4E7AEF02290E68370069D6A1 /* PencilViewOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E7AEF01290E68370069D6A1 /* PencilViewOverlay.swift */; };
 		4E8CE6CC2915341900975821 /* PaintableModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E8CE6CB2915341900975821 /* PaintableModel.swift */; };
-		4EBD970C2941A70B00BD7BD1 /* DrawingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EBD970B2941A70B00BD7BD1 /* DrawingModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,7 +47,6 @@
 		4E7AEF01290E68370069D6A1 /* PencilViewOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PencilViewOverlay.swift; sourceTree = "<group>"; };
 		4E8CE6CB2915341900975821 /* PaintableModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaintableModel.swift; sourceTree = "<group>"; };
 		4EBD96F72931766B00BD7BD1 /* Draw3D.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Draw3D.entitlements; sourceTree = "<group>"; };
-		4EBD970B2941A70B00BD7BD1 /* DrawingModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,7 +88,6 @@
 				4E03E07C29B0C88500660019 /* compare.swift */,
 				4E2B1E862909BE7A00FF4A71 /* ContentView.swift */,
 				4E2B1E842909BE7A00FF4A71 /* Draw3DApp.swift */,
-				4EBD970B2941A70B00BD7BD1 /* DrawingModel.swift */,
 				4E3826DD291A60B9001CF823 /* Nozzle.swift */,
 				4E5B0722290AB138006B7B3B /* PencilViewContainer.swift */,
 				4E7AEF01290E68370069D6A1 /* PencilViewOverlay.swift */,
@@ -195,7 +192,6 @@
 				4E5B0723290AB138006B7B3B /* PencilViewContainer.swift in Sources */,
 				4E7AEF02290E68370069D6A1 /* PencilViewOverlay.swift in Sources */,
 				4E8CE6CC2915341900975821 /* PaintableModel.swift in Sources */,
-				4EBD970C2941A70B00BD7BD1 /* DrawingModel.swift in Sources */,
 				4E2B1E852909BE7A00FF4A71 /* Draw3DApp.swift in Sources */,
 				4E3826DA291A5EDB001CF823 /* Triangle.swift in Sources */,
 				4E7A6F53291CE5FA00CFA84F /* SCNVector3Extensions.swift in Sources */,
@@ -349,7 +345,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Draw3D-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -387,7 +383,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Draw3D-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
