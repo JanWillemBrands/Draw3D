@@ -18,7 +18,6 @@ var triangleScene: SCNScene {
 }
 
 var triangleNode: SCNNode {
-    // Vertices
     let vertices: [SCNVector3] = [SCNVector3(0, 0, 0),
                                   SCNVector3(0, 1, 0),
                                   SCNVector3(1, 0, 0),

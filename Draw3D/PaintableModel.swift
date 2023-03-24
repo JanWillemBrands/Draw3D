@@ -11,7 +11,7 @@
 
 import SceneKit
 
-struct PaintableModel: ObservableObject {
+class PaintableModel {
     
     let paintScene = SCNScene()
     var paintNode = SCNNode()
@@ -105,14 +105,14 @@ struct PaintableModel: ObservableObject {
                 copyNode.name = "copynode"
                 copyNode.geometry?.firstMaterial?.lightingModel = .physicallyBased
 
-                // Build the modified scene with the paint node on top of the copy node.
+                // Build a modified scene with the paint node on top of the copy node.
                 paintScene.rootNode.addChildNode(paintNode)
                 paintNode.addChildNode(copyNode)
             }
         }
     }
     
-    mutating func paintTriangleFace(of renderer: SCNSceneRenderer?, at point: CGPoint) {
+    func paintTriangleFace(of renderer: SCNSceneRenderer?, at point: CGPoint) {
         
         let hitOptions = [SCNHitTestOption.searchMode: SCNHitTestSearchMode.closest.rawValue]
         

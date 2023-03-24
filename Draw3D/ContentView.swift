@@ -13,10 +13,10 @@ import RealityKit
 struct ContentView: View {
     
     let original = SCNScene(named: "SceneKit Asset Catalog.scnassets/bronze.usdz")!
-    @StateObject var model: PaintableModel { PaintableModel(from: original) }
+    @State var model: PaintableModel { PaintableModel(from: original) }
     
     var originalTexture: UIImage { UIImage(named: "KanaKanaTexture")! }
-
+    
     // NEW stuff ^^^^^^
 
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
