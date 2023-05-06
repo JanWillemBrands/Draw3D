@@ -12,12 +12,7 @@ import RealityKit
 
 struct ContentView: View {
     
-    let original = SCNScene(named: "SceneKit Asset Catalog.scnassets/bronze.usdz")!
-    @State var model: PaintableModel { PaintableModel(from: original) }
-    
-    var originalTexture: UIImage { UIImage(named: "KanaKanaTexture")! }
-    
-    // NEW stuff ^^^^^^
+    @StateObject var model = PaintableModel()
 
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.undoManager) var undoManager
@@ -34,7 +29,7 @@ struct ContentView: View {
     @State internal var modelCanMove = true
     @State internal var drawingDidChange = false
         
-    @State internal var scene: SCNScene = triangleScene
+//    @State internal var scene: SCNScene = triangleScene
     @State internal var renderer: SCNSceneRenderer?
 
     var models = ["one", "two"]
@@ -54,13 +49,14 @@ struct ContentView: View {
             }
         } detail: {
                 ZStack {
-                    SceneViewContainer(scene: scene, renderer: $renderer, showWireframe: $showWireFrame)
+//                    SceneViewContainer(scene: model.scene, renderer: $renderer, showWireframe: $showWireFrame)
+                    SceneViewContainer(scene: model.paintScene, renderer: $renderer, showWireframe: $showWireFrame)
                     PencilViewContainer(canvasView: modelCanvas, picker: picker, drawingDidChange: $drawingDidChange)
                         .disabled(modelCanMove)
                 }
                 .overlay(alignment: .bottomTrailing) {
                     if showWireFrame {
-                        Image(uiImage: originalTexture)
+                        Image(uiImage: model.texture)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 100, height: 100)
@@ -71,9 +67,10 @@ struct ContentView: View {
             .onChange(of: drawingDidChange) { _ in
                 
                 for stroke in modelCanvas.drawing.strokes {
+//                    let _ = stroke.path.map { element in element.location }
                     for index in stroke.path.indices {
                         let point = stroke.path[index]
-                        _ = textureCoordinateFromScreenCoordinate(with: renderer, of: point.location)
+//                        _ = textureCoordinateFromScreenCoordinate(with: renderer, of: point.location)
                         model.paintTriangleFace(of: renderer, at: point.location)
                     }
                 }

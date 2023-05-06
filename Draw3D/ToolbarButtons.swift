@@ -28,11 +28,12 @@ extension ContentView {
                 modelCanvas.drawing = PKDrawing()   // An empty drawing.
                 if url.startAccessingSecurityScopedResource() {
                     defer { url.stopAccessingSecurityScopedResource() }
-                    scene = getSceneFrom(url)
-                    model = PaintableModel(from: scene)
+                    let scene = getSceneFrom(url)
+                    model.extractSceneGeometry(from: scene)
                 }
             case .failure(let error):
                 logger.error("Cannot import file \(error)")
+                // TODO: add error popup
                 //                fatalError("Cannot import file \(error)")
             }
         }
@@ -84,7 +85,6 @@ extension ContentView {
         Button(
             action: { modelCanMove = true },
             label: { Label("Move", systemImage: "move.3d") }
-            
         )
         .labelStyle(.titleAndIcon)
         .foregroundColor( modelCanMove ? Color("Laguna") : .accentColor)
@@ -94,7 +94,6 @@ extension ContentView {
         Button(
             action: { modelCanMove = false },
             label: { Label("Draw", systemImage: "scribble.variable") }
-            
         )
         .labelStyle(.titleAndIcon)
         .foregroundColor( !modelCanMove ? Color("Laguna") : .accentColor)
@@ -103,16 +102,16 @@ extension ContentView {
     @ViewBuilder func RunButton() -> some View {
         Button(
             action: {
-                let paintedVertexIndices: [Int] = vertexColor.enumerated().compactMap { (index, color) in
-                    color.x == 1 ? index : nil
+                let paintedVertexIndices: [Int] = model.colors.enumerated().compactMap { (index, color) in
+                    SIMD4<Float>(color) == SIMD4<Float>(model.opaqueRed) ? index : nil
                 }
                 let path: [Waypoint] = paintedVertexIndices.map { index in
-                    Waypoint(position: vertices[index], orientation: normals[index])
+                    Waypoint(position: model.vertices[index], orientation: model.normals[index])
                 }
                 let optimalPath = optimized(path)
-       
+                
                 let nozzle = nozzle
-                scene.rootNode.addChildNode(nozzle)
+                model.paintScene.rootNode.addChildNode(nozzle)
                 move(node: nozzle, along: optimalPath)
             },
             label: { Label("Run", systemImage: "figure.run") }
@@ -126,11 +125,11 @@ extension ContentView {
                 debugPrint("PoV \(String(describing: renderer?.pointOfView))")
                 showWireFrame.toggle()
                 if showWireFrame {
-                    addAxes(to: scene)
-                    addNozzle(to: scene)
+                    addAxes(to: model.paintScene)
+                    addNozzle(to: model.paintScene)
                 } else {
-                    removeAxes(from: scene)
-                    removeNozzle(from: scene)
+                    removeAxes(from: model.paintScene)
+                    removeNozzle(from: model.paintScene)
                 }
             },
             label: { Label("Inspect", systemImage: "ruler") }
@@ -153,28 +152,19 @@ extension ContentView {
             mdlAsset.loadTextures()
             scene = SCNScene(mdlAsset: mdlAsset)
             
-            //            let mdlMeshes = mdlAsset.childObjects(of: MDLMesh.self) as? [MDLMesh]
-            //            let firstMesh = mdlMeshes?.first
-            //            let firstSubmesh = firstMesh?.submeshes?.firstObject as? MDLSubmesh
-            //            let mdlMaterial = firstSubmesh?.material
-            //            let baseColor = mdlMaterial?.property(with: .baseColor)
-            //            let textureSamplerValue = baseColor?.textureSamplerValue
-            //            let mdlTexture = textureSamplerValue?.texture
-            //            if let imageFromTexture = mdlTexture?.imageFromTexture()?.takeUnretainedValue() {
-            //                texture = UIImage(cgImage: imageFromTexture)
-            //            } else {
-            //                texture = scene.rootNode.childNodes.first?.geometry?.firstMaterial?.diffuse.contents as? UIImage
-            //            }
+            let mdlMeshes = mdlAsset.childObjects(of: MDLMesh.self) as? [MDLMesh]
+            let firstMesh = mdlMeshes?.first
+            let firstSubmesh = firstMesh?.submeshes?.firstObject as? MDLSubmesh
+            let mdlMaterial = firstSubmesh?.material
+            let baseColor = mdlMaterial?.property(with: .baseColor)
+            let textureSamplerValue = baseColor?.textureSamplerValue
+            let mdlTexture = textureSamplerValue?.texture
+            if let imageFromTexture = mdlTexture?.imageFromTexture()?.takeUnretainedValue() {
+                model.texture = UIImage(cgImage: imageFromTexture)
+            } else {
+                model.texture = scene.rootNode.childNodes.first?.geometry?.firstMaterial?.diffuse.contents as? UIImage ?? UIImage(named: "KanaKanaTexture")!
+            }
         }
-        
-        // TODO: why is this necessary to remove flickering when rotating model?
-        //        let material = SCNMaterial()
-        //        material.diffuse.contents = texture
-        //
-        //        mainNode(in: scene)?.geometry?.materials = [material]
-        
         return scene
     }
-    
-    
 }

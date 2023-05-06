@@ -76,7 +76,6 @@ var triangleNode: SCNNode {
     )
     
     // TODO: replace all this shit with RealityKit
-//    let normalss = SCNGeometrySource(normals: normals)
     
     // Colors
     let colors: [SCNVector4] = [SCNVector4(1.0, 0.0, 0.0, 1.0),

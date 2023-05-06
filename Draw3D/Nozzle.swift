@@ -15,7 +15,6 @@ var nozzle: SCNNode {
     let plasmaHeight = 0.01
     let waterHeight = 0.1
     
-    // TODO: make nozzle a subclass of SCNNode with a settable properties like color and speed
     let plasmaColor = UIColor.orange
     
     //    @Published var plasmaActive = false
@@ -50,9 +49,21 @@ func removeNozzle(from scene: SCNScene) {
 
 
 
+//struct Waypoint {
+//    let position: SCNVector3
+//    let orientation: SCNVector3
+//}
 struct Waypoint {
-    let position: SCNVector3
-    let orientation: SCNVector3
+    let position: SIMD3<Float>
+    let orientation: SIMD3<Float>
+    init(position: SCNVector3, orientation: SCNVector3) {
+        self.position = SIMD3<Float>(position)
+        self.orientation = SIMD3<Float>(orientation)
+    }
+    init(position: SIMD3<Float>, orientation: SIMD3<Float>) {
+        self.position = position
+        self.orientation = orientation
+    }
 }
 
 func move(node: SCNNode, along path: [Waypoint]) {
@@ -62,12 +73,14 @@ func move(node: SCNNode, along path: [Waypoint]) {
         
         let reposition = SCNAction.run { node in
             let originalOrientation = SIMD3(Float(0.0), Float(1.0), Float(0.0))
-            let desiredOrientation = SIMD3(x: point.orientation.x, y: point.orientation.y, z: point.orientation.z)
-            let rotation = simd_quatf(from: originalOrientation, to: desiredOrientation)
-            
+//            let desiredOrientation = SIMD3(x: point.orientation.x, y: point.orientation.y, z: point.orientation.z)
+//            let rotation = simd_quatf(from: originalOrientation, to: desiredOrientation)
+            let rotation = simd_quatf(from: originalOrientation, to: point.orientation)
+
             SCNTransaction.begin()
             SCNTransaction.animationDuration = 2
-            node.position = point.position
+//            node.position = point.position
+            node.simdPosition = point.position
             node.simdOrientation = rotation
             SCNTransaction.commit()
         }
@@ -107,8 +120,9 @@ func move(node: SCNNode, along path: [Waypoint]) {
 
 // simple greedy cheapest neighbour
 func optimized2(_ path: [Waypoint]) -> [Waypoint] {
-    let start = Waypoint(position: SCNVector3(0, 0, 0), orientation: SCNVector3(0, 0, 0))
-    
+//    let start = Waypoint(position: SCNVector3(0, 0, 0), orientation: SCNVector3(0, 0, 0))
+    let start = Waypoint(position: SIMD3<Float>.zero, orientation: SIMD3<Float>.zero)
+
     var chaotic = path
     var ordered = [start]
     
@@ -130,8 +144,9 @@ func optimized2(_ path: [Waypoint]) -> [Waypoint] {
 
 // cheapest insertion into partial path
 func optimized(_ path: [Waypoint]) -> [Waypoint] {
-    let start = Waypoint(position: SCNVector3(0, 0, 0), orientation: SCNVector3(0, 0, 0))
-    
+    //    let start = Waypoint(position: SCNVector3(0, 0, 0), orientation: SCNVector3(0, 0, 0))
+        let start = Waypoint(position: SIMD3<Float>.zero, orientation: SIMD3<Float>.zero)
+
     var chaotic = path
     var ordered = [start]
         
@@ -167,12 +182,13 @@ func optimized(_ path: [Waypoint]) -> [Waypoint] {
 }
 
 func cost(A: Waypoint, B: Waypoint) -> Double {
-    let costPerMeter = 1.0
+    let costPerMeter  = 1.0
     let costPerRadian = 0.1
     
-    let positionCost = Double(A.position.distance(vector: B.position)) * costPerMeter
+    let positionCost = Double(distance(A.position, B.position)) * costPerMeter
+//    let positionCost = Double(A.position.distance(vector: B.position)) * costPerMeter
     // TODO: review cost function
-    let _ = abs(asin(Double(A.orientation.dot(vector: B.orientation)))) * costPerRadian
+    let rotationCost = abs(asin(Double(dot(A.orientation, B.orientation)))) * costPerRadian
     
     return positionCost // + rotationCost
 }
