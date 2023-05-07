@@ -114,11 +114,6 @@ class PaintableModel: ObservableObject {
                     dataStride: MemoryLayout<SCNVector4>.size)
                 
                 // Create a geometry with a single color paint source.
-                
-                for s in geometry.sources {
-                    print("s", s.debugDescription)
-                }
-                
                 let geometryWithPaint = SCNGeometry(
                     sources: [vertexSource] + [normalSource] + [paintSource],
                     elements: geometry.elements
@@ -146,6 +141,9 @@ class PaintableModel: ObservableObject {
 //                    print("material", m, m.diffuse)
 //                }
                 // Copy the roughness to make the paint look similar to the original surface.
+                // TODO: remove
+                geometryWithPaint.materials = geometry.materials
+                
                 geometryWithPaint.firstMaterial?.roughness.contents = geometry.firstMaterial?.roughness.contents
                 geometryWithPaint.firstMaterial?.lightingModel = .physicallyBased
 

@@ -36,6 +36,8 @@ struct ContentView: View {
     @State private var selection: Set<String> = []
     
     var body: some View {
+        CompareGeometries()
+        
         NavigationSplitView {
             List(models, id: \.self, selection: $selection) { group in
                 Text(group)

@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4E03E07D29B0C88500660019 /* compare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E03E07C29B0C88500660019 /* compare.swift */; };
+		4E03E07D29B0C88500660019 /* CompareGeometries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E03E07C29B0C88500660019 /* CompareGeometries.swift */; };
 		4E03E07F29B0E2AD00660019 /* SceneKit Asset Catalog.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 4E03E07E29B0E2AD00660019 /* SceneKit Asset Catalog.scnassets */; };
 		4E2B1E852909BE7A00FF4A71 /* Draw3DApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B1E842909BE7A00FF4A71 /* Draw3DApp.swift */; };
 		4E2B1E872909BE7A00FF4A71 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B1E862909BE7A00FF4A71 /* ContentView.swift */; };
@@ -23,7 +23,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		4E03E07C29B0C88500660019 /* compare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = compare.swift; sourceTree = "<group>"; };
+		4E03E07C29B0C88500660019 /* CompareGeometries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompareGeometries.swift; sourceTree = "<group>"; };
 		4E03E07E29B0E2AD00660019 /* SceneKit Asset Catalog.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = "SceneKit Asset Catalog.scnassets"; sourceTree = "<group>"; };
 		4E03E08029B3D84D00660019 /* PrivateMethods.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrivateMethods.h; sourceTree = "<group>"; };
 		4E03E08329B3DA3500660019 /* Draw3D-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Draw3D-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -81,7 +81,7 @@
 				4E6E2695292BA9230022DE11 /* Info.plist */,
 				4E03E07E29B0E2AD00660019 /* SceneKit Asset Catalog.scnassets */,
 				4E3826DB291A6090001CF823 /* Axes.swift */,
-				4E03E07C29B0C88500660019 /* compare.swift */,
+				4E03E07C29B0C88500660019 /* CompareGeometries.swift */,
 				4E2B1E862909BE7A00FF4A71 /* ContentView.swift */,
 				4E2B1E842909BE7A00FF4A71 /* Draw3DApp.swift */,
 				4E3826DD291A60B9001CF823 /* Nozzle.swift */,
@@ -185,7 +185,7 @@
 				4E8CE6CC2915341900975821 /* PaintableModel.swift in Sources */,
 				4E2B1E852909BE7A00FF4A71 /* Draw3DApp.swift in Sources */,
 				4E3826DA291A5EDB001CF823 /* Triangle.swift in Sources */,
-				4E03E07D29B0C88500660019 /* compare.swift in Sources */,
+				4E03E07D29B0C88500660019 /* CompareGeometries.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
