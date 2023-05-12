@@ -28,20 +28,20 @@ struct SceneViewContainer: UIViewRepresentable {
     func updateUIView(_ uiView: SCNView, context: Context) {
         uiView.scene = scene
         
-        // We will only change the color of the copyNode.
+        // Only change the color of the copyNode.
         let copyNode = scene?.rootNode.childNode(withName: "copynode", recursively: true)
         
         if showWireframe {
             uiView.showsStatistics = true
             uiView.debugOptions = [.renderAsWireframe]
-            copyNode?.enumerateHierarchy { child, stop in
+            copyNode?.enumerateChildNodes { child, stop in
                 child.geometry?.firstMaterial?.emission.contents = UIColor.white
             }
             uiView.backgroundColor = UIColor.black
         } else {
             uiView.showsStatistics = false
             uiView.debugOptions = []
-            copyNode?.enumerateHierarchy { child, stop in
+            copyNode?.enumerateChildNodes { child, stop in
                 child.geometry?.firstMaterial?.emission.contents = UIColor.clear
             }
             uiView.backgroundColor = UIColor.white

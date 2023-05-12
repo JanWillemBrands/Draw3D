@@ -7,13 +7,14 @@
 
 import SwiftUI
 import SceneKit
+import SceneKit.ModelIO
 import PencilKit
 import RealityKit
 
 struct ContentView: View {
     
     @StateObject var model = PaintableModel()
-
+    
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.undoManager) var undoManager
     
@@ -36,8 +37,6 @@ struct ContentView: View {
     @State private var selection: Set<String> = []
     
     var body: some View {
-        CompareGeometries()
-        
         NavigationSplitView {
             List(models, id: \.self, selection: $selection) { group in
                 Text(group)
@@ -51,7 +50,6 @@ struct ContentView: View {
             }
         } detail: {
                 ZStack {
-//                    SceneViewContainer(scene: model.scene, renderer: $renderer, showWireframe: $showWireFrame)
                     SceneViewContainer(scene: model.paintScene, renderer: $renderer, showWireframe: $showWireFrame)
                     PencilViewContainer(canvasView: modelCanvas, picker: picker, drawingDidChange: $drawingDidChange)
                         .disabled(modelCanMove)

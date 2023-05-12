@@ -18,6 +18,7 @@
 		4E3826DE291A60B9001CF823 /* Nozzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E3826DD291A60B9001CF823 /* Nozzle.swift */; };
 		4E5B0723290AB138006B7B3B /* PencilViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5B0722290AB138006B7B3B /* PencilViewContainer.swift */; };
 		4E5B0727290ADD7F006B7B3B /* SceneViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5B0726290ADD7F006B7B3B /* SceneViewContainer.swift */; };
+		4E68CA712A0BE10900965DF1 /* CRXSimulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E68CA702A0BE0FF00965DF1 /* CRXSimulation.swift */; };
 		4E74E0A92911565E00E0EF03 /* ToolbarButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E74E0A82911565E00E0EF03 /* ToolbarButtons.swift */; };
 		4E8CE6CC2915341900975821 /* PaintableModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E8CE6CB2915341900975821 /* PaintableModel.swift */; };
 /* End PBXBuildFile section */
@@ -37,6 +38,7 @@
 		4E3826DD291A60B9001CF823 /* Nozzle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nozzle.swift; sourceTree = "<group>"; };
 		4E5B0722290AB138006B7B3B /* PencilViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PencilViewContainer.swift; sourceTree = "<group>"; };
 		4E5B0726290ADD7F006B7B3B /* SceneViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneViewContainer.swift; sourceTree = "<group>"; };
+		4E68CA702A0BE0FF00965DF1 /* CRXSimulation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CRXSimulation.swift; sourceTree = "<group>"; };
 		4E6E2695292BA9230022DE11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4E74E0A82911565E00E0EF03 /* ToolbarButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarButtons.swift; sourceTree = "<group>"; };
 		4E873EAC29D0AB0D00FB9C27 /* TSMtest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TSMtest.swift; sourceTree = "<group>"; };
@@ -77,6 +79,7 @@
 		4E2B1E832909BE7A00FF4A71 /* Draw3D */ = {
 			isa = PBXGroup;
 			children = (
+				4E68CA702A0BE0FF00965DF1 /* CRXSimulation.swift */,
 				4EBD96F72931766B00BD7BD1 /* Draw3D.entitlements */,
 				4E6E2695292BA9230022DE11 /* Info.plist */,
 				4E03E07E29B0E2AD00660019 /* SceneKit Asset Catalog.scnassets */,
@@ -186,6 +189,7 @@
 				4E2B1E852909BE7A00FF4A71 /* Draw3DApp.swift in Sources */,
 				4E3826DA291A5EDB001CF823 /* Triangle.swift in Sources */,
 				4E03E07D29B0C88500660019 /* CompareGeometries.swift in Sources */,
+				4E68CA712A0BE10900965DF1 /* CRXSimulation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

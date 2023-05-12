@@ -25,11 +25,19 @@ extension ContentView {
         .fileImporter(isPresented: $isPresentingFileImport, allowedContentTypes: [UTType.usdz, UTType.threeDContent, stl, obj]) { result in
             switch result {
             case .success(let url):
-                modelCanvas.drawing = PKDrawing()   // An empty drawing.
                 if url.startAccessingSecurityScopedResource() {
                     defer { url.stopAccessingSecurityScopedResource() }
+                    
+//                    model.asset = MDLAsset(url: url)
+                    model.asset = MDLAsset(url: url,
+                                           vertexDescriptor: nil,
+                                           bufferAllocator: nil,
+                                           preserveTopology: false,
+                                           error: nil)
                     let scene = getSceneFrom(url)
                     model.extractSceneGeometry(from: scene)
+                    
+                    modelCanvas.drawing = PKDrawing()   // An empty drawing.
                 }
             case .failure(let error):
                 logger.error("Cannot import file \(error)")

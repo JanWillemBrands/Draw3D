@@ -10,10 +10,13 @@
 // https://stackoverflow.com/questions/17250501/extracting-vertices-from-scenekit/66748865#66748865
 
 import SceneKit
+import SceneKit.ModelIO
 
 class PaintableModel: ObservableObject {
     
     @Published var paintScene = SCNScene()
+    
+    var asset = MDLAsset()
     
     public var paintNode = SCNNode()
     
@@ -24,7 +27,7 @@ class PaintableModel: ObservableObject {
     public var vertices: [SCNVector3] = []
     public var normals:  [SCNVector3] = []
     public var colors:   [SCNVector4] = []
-
+    
     var vertexSource = SCNGeometrySource()
     var normalSource = SCNGeometrySource()
     var colorSource  = SCNGeometrySource()
@@ -44,124 +47,101 @@ class PaintableModel: ObservableObject {
     
     func extractSceneGeometry(from scene: SCNScene) {
         
-        // TODO: remove
-        scene.rootNode.enumerateHierarchy { child, stop in
-            print("g", child.geometry.debugDescription)
-            if let s = child.geometry?.elements {
-                for e in s {
-                    print("e", e.debugDescription)
-                }
-            }
+        // Get the geometry of the first mesh.
+        guard let firstMesh = asset.childObjects(of: MDLMesh.self).first as? MDLMesh else {
+            return
         }
-
-        // Find the first node in the scene that contains a geometry.
-//        paintScene = scene
-        scene.rootNode.enumerateHierarchy { child, stop in
+        let geometry = SCNGeometry(mdlMesh: firstMesh)
+        
+        // Save a copy of the diffuse material.
+        texture = geometry.firstMaterial?.diffuse.contents as? UIImage ?? UIImage(named: "KanaKanaTexture")!
+        
+        // Get the face indices from the first element as an array.
+        indices = geometry.element(at: 0).data.withUnsafeBytes { ptr in
+            [Int32].init(ptr.bindMemory(to: Int32.self))
+        }
+        
+        if let vs = geometry.sources(for: .vertex).first {
+            // Extract the vertex coordinates as an array.
+            vertices = vs.data.withUnsafeBytes { ptr in
+                [SCNVector3].init(ptr.bindMemory(to: SCNVector3.self))
+            }
+            vertexSource = vs
+        }
+        
+        if let ns = geometry.sources(for: .normal).first {
+            // Extract the vertex normals as an array.
+            normals = ns.data.withUnsafeBytes { ptr in
+                [SCNVector3].init(ptr.bindMemory(to: SCNVector3.self))
+            }
+            normalSource = ns
+        }
+        
+        if let cs = geometry.sources(for: .color).first {
+            // Extract the vertex colors as an array.
+            colors = cs.data.withUnsafeBytes { ptr in
+                [SCNVector4].init(ptr.bindMemory(to: SCNVector4.self))
+            }
+            colorSource = cs
+        } else {
+            // Create a transparent per-vertex color source to use as a paint layer.
+            colors = Array(repeating: transparent, count: vertices.count)
+        }
+        
+        // TODO: Add some random paint for testing purposes.
+        for i in stride(from: 0, to: colors.count, by: 10) {
+            colors[i] = opaqueYellow
+        }
+        
+        // Convert the array of paint colors into a geometry color source.
+        let paintSource = SCNGeometrySource(
+            data: colors.withUnsafeBytes { ptr in .init(ptr) },
+            semantic: .color,
+            vectorCount: colors.count,
+            usesFloatComponents: true,
+            componentsPerVector: 4,
+            bytesPerComponent: MemoryLayout<Float>.size,
+            dataOffset: 0,
+            dataStride: MemoryLayout<SCNVector4>.size)
+        
+        // Create a geometry with a single color paint source.
+        let geometryWithPaint = SCNGeometry(
+            sources: [vertexSource] + [normalSource] + [paintSource],
+            elements: geometry.elements
+        )
+        //                let paintMaterial = SCNMaterial()
+        //                paintMaterial.diffuse.contents = UIColor.orange
+        //                paintMaterial.lightingModel = .physicallyBased
+        //                geometryWithPaint.materials = [paintMaterial]
+        
+        //                geometryWithPaint.firstMaterial?.diffuse.contents = UIColor.blue
+        //                for m in geometryWithPaint.materials {
+        //                    print("material", m, m.diffuse)
+        //                }
+        // Copy the roughness to make the paint look similar to the original surface.
+        
+        geometryWithPaint.firstMaterial?.roughness.contents = geometry.firstMaterial?.roughness.contents
+        geometryWithPaint.firstMaterial?.lightingModel = .physicallyBased
+        
+        paintNode = SCNNode(geometry: geometryWithPaint)
+        paintNode.name = "paintnode"
+        
+        // Make a copy of the first node in the scene that contains a geometry.
+        scene.rootNode.enumerateChildNodes { child, stop in
             if let geometry = child.geometry {
-                print("yo")
                 stop.pointee = true
-                //        geometry.subdivisionLevel = 3
-                
-                // Save a copy of the diffuse material.
-                texture = geometry.firstMaterial?.diffuse.contents as? UIImage ?? UIImage(named: "KanaKanaTexture")!
-                
-                // Get the face indices from the first element as an array.
-                indices = geometry.element(at: 0).data.withUnsafeBytes { ptr in
-                    [Int32].init(ptr.bindMemory(to: Int32.self))
-                }
-                
-                if let vs = geometry.sources(for: .vertex).first {
-                    // Extract the vertex coordinates as an array.
-                    vertices = vs.data.withUnsafeBytes { ptr in
-                        [SCNVector3].init(ptr.bindMemory(to: SCNVector3.self))
-                    }
-                    vertexSource = vs
-                }
-                
-                if let ns = geometry.sources(for: .normal).first {
-                    // Extract the vertex normals as an array.
-                    normals = ns.data.withUnsafeBytes { ptr in
-                        [SCNVector3].init(ptr.bindMemory(to: SCNVector3.self))
-                    }
-                    normalSource = ns
-                }
-                
-                if let cs = geometry.sources(for: .color).first {
-                    // Extract the vertex colors as an array.
-                    colors = cs.data.withUnsafeBytes { ptr in
-                        [SCNVector4].init(ptr.bindMemory(to: SCNVector4.self))
-                    }
-                    colorSource = cs
-                } else {
-                    // Create a transparent per-vertex color source to use as a paint layer.
-                    colors = Array(repeating: transparent, count: vertices.count)
-                }
-                                
-                // TODO: Add some random paint for testing purposes.
-                for i in stride(from: 0, to: colors.count, by: 1) {
-                    colors[i] = opaqueRed
-                }
-                
-                // Convert the array of paint colors into a geometry color source.
-                let paintSource = SCNGeometrySource(
-                    data: colors.withUnsafeBytes { ptr in .init(ptr) },
-                    semantic: .color,
-                    vectorCount: colors.count,
-                    usesFloatComponents: true,
-                    componentsPerVector: 4,
-                    bytesPerComponent: MemoryLayout<Float>.size,
-                    dataOffset: 0,
-                    dataStride: MemoryLayout<SCNVector4>.size)
-                
-                // Create a geometry with a single color paint source.
-                let geometryWithPaint = SCNGeometry(
-                    sources: [vertexSource] + [normalSource] + [paintSource],
-                    elements: geometry.elements
-                )
-                
-//                geometryWithPaint.materials = geometry.materials
-//                geometryWithPaint.firstMaterial?.diffuse.contents = geometry.firstMaterial?.diffuse.contents
-//                geometryWithPaint.firstMaterial?.specular.contents = geometry.firstMaterial?.specular.contents
-//                geometryWithPaint.firstMaterial?.emission.contents = geometry.firstMaterial?.emission.contents
-//                geometryWithPaint.firstMaterial?.transparent.contents = geometry.firstMaterial?.transparent.contents
-//                geometryWithPaint.firstMaterial?.reflective.contents = geometry.firstMaterial?.reflective.contents
-//                geometryWithPaint.firstMaterial?.normal.contents = geometry.firstMaterial?.normal.contents
-//                geometryWithPaint.firstMaterial?.ambientOcclusion.contents = geometry.firstMaterial?.ambientOcclusion.contents
-//                geometryWithPaint.firstMaterial?.metalness.contents = geometry.firstMaterial?.metalness.contents
-//                geometryWithPaint.firstMaterial?.roughness.contents = geometry.firstMaterial?.roughness.contents
-//                geometryWithPaint.firstMaterial?.displacement.contents = geometry.firstMaterial?.displacement.contents
-
-//                let paintMaterial = SCNMaterial()
-//                paintMaterial.diffuse.contents = UIColor.orange
-//                paintMaterial.lightingModel = .physicallyBased
-//                geometryWithPaint.materials = [paintMaterial]
-
-//                geometryWithPaint.firstMaterial?.diffuse.contents = UIColor.blue
-//                for m in geometryWithPaint.materials {
-//                    print("material", m, m.diffuse)
-//                }
-                // Copy the roughness to make the paint look similar to the original surface.
-                // TODO: remove
-                geometryWithPaint.materials = geometry.materials
-                
-                geometryWithPaint.firstMaterial?.roughness.contents = geometry.firstMaterial?.roughness.contents
-                geometryWithPaint.firstMaterial?.lightingModel = .physicallyBased
-
-                paintNode = SCNNode(geometry: geometryWithPaint)
-                paintNode.name = "paintnode"
-                
-                // Create a copy of the original node.
-                copyNode = SCNNode(geometry: geometry)
-                copyNode.name = "copynode"
-                // TODO: can we keep the default lightingModel or do we need to force it to physicallyBased ?
-                copyNode.geometry?.firstMaterial?.lightingModel = .physicallyBased
-
-                // Build a modified scene with the paint node on top of the copied original node.
-                paintScene.rootNode.addChildNode(paintNode)
-//              TODO: uncomment
-//                paintNode.addChildNode(copyNode)
+                copyNode = child
             }
         }
+        
+//        copyNode = SCNNode(geometry: geometry)
+        copyNode.name = "copynode"
+        // TODO: can we keep the default lightingModel or do we need to force it to physicallyBased ?
+        copyNode.geometry?.firstMaterial?.lightingModel = .physicallyBased
+        
+        // Build a modified scene with the paint node on top of the copied original node.
+        paintScene.rootNode.addChildNode(paintNode)
+        paintNode.addChildNode(copyNode)
     }
     
     func paintTriangleFace(of renderer: SCNSceneRenderer?, at point: CGPoint) {
@@ -176,7 +156,8 @@ class PaintableModel: ObservableObject {
             let firstElement = geometry.element(at: 0)
             
             // Handle only geometries with triangle faces/primitives.
-//            guard firstElement.primitiveType == .triangles else { return }
+            print("primitiveType", firstElement.primitiveType.rawValue.description)
+            guard firstElement.primitiveType == .triangles else { return }
             
             // CAUTION: MAJOR HACK using objc private methods to deal with USDZ model that contains <SCNGeometryElement: 0x60000382b800 | 25000 x triangle, 2 channels, int indices>
             var channelCount = 1
@@ -197,9 +178,9 @@ class PaintableModel: ObservableObject {
             colors[Int(indices[corner3])] = opaqueRed
             
             // TODO: Add some random paint for testing purposes.
-            for i in stride(from: 0, to: colors.count, by: 20) {
-                colors[i] = opaqueRed
-            }
+            //            for i in stride(from: 0, to: colors.count, by: 20) {
+            //                colors[i] = opaqueRed
+            //            }
             
             // Convert the array of paint colors into a geometry color source.
             let paintSource = SCNGeometrySource(
@@ -220,15 +201,8 @@ class PaintableModel: ObservableObject {
             // Copy the roughness to make the paint look similar to the original surface.
             geometryWithPaint.firstMaterial?.roughness.contents = geometry.firstMaterial?.roughness.contents
             geometryWithPaint.firstMaterial?.lightingModel = .physicallyBased
-
+            
             paintNode.geometry = geometryWithPaint
-        }
-        print("painted vertices ", terminator: "")
-        for c in colors {
-            if c.x == 1 && c.y == 0 {
-                print("r", terminator: "")
-                print()
-            }
         }
     }
     
