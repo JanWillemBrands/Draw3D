@@ -20,16 +20,16 @@ struct CRXSimulation: View {
     let wrist3: SCNNode
     let flange: SCNNode
     
-//    let ikConstraint: SCNIKConstraint
+    let ikConstraint: SCNIKConstraint
     
-    @State var angle: Float = 0
+    @State var angle = ""
     
     init() {
         base = crxScene.rootNode.childNode(withName: "base", recursively: true)!
 
         shoulder = crxScene.rootNode.childNode(withName: "shoulder", recursively: true)!
         shoulder.constraints = [xRotationConstraint]
-        
+
         elbow = crxScene.rootNode.childNode(withName: "elbow", recursively: true)!
         elbow.constraints = [xRotationConstraint]
 
@@ -37,13 +37,16 @@ struct CRXSimulation: View {
         wrist1.constraints = [xRotationConstraint]
 
         wrist2 = crxScene.rootNode.childNode(withName: "wrist2", recursively: true)!
-        wrist2.constraints = [xRotationConstraint]
+        wrist2.simdPivot = make
+//        wrist2.constraints = [xRotationConstraint]
 
         wrist3 = crxScene.rootNode.childNode(withName: "wrist3", recursively: true)!
         wrist3.constraints = [xRotationConstraint]
 
         flange = crxScene.rootNode.childNode(withName: "flange", recursively: true)!
         
+        angle = wrist2.simdPosition.description
+
         flange.enumerateHierarchy { child, stop in
             if let materials = child.geometry?.materials {
                 for m in materials {
@@ -52,9 +55,9 @@ struct CRXSimulation: View {
             }
         }
                 
-//        ikConstraint = SCNIKConstraint.inverseKinematicsConstraint(chainRootNode: base)
+        ikConstraint = SCNIKConstraint.inverseKinematicsConstraint(chainRootNode: base)
 //        ikConstraint.targetPosition = flange.worldPosition
-//        flange.constraints = [ikConstraint, xRotationConstraint]
+        flange.constraints = [ikConstraint, xRotationConstraint]
 
     }
     
@@ -78,10 +81,10 @@ struct CRXSimulation: View {
     
     var body: some View {
         VStack {
-            Text(angle.description)
+            Text(angle)
             Button("move") {
-//                let tp = flange.simdWorldPosition + SIMD3(0.1, 0.1, 0.1)
-//                ikConstraint.targetPosition = SCNVector3(tp)
+                let tp = flange.simdWorldPosition + SIMD3(0.1, 0.1, 0.1)
+                ikConstraint.targetPosition = SCNVector3(tp)
 //                flange.simdRotation = flange.simdRotation + SIMD4(0.1, 0.1, 0.1, 0.1)
 //                flange.simdPosition = flange.simdPosition + SIMD3(0.1, 0.1, 0.1)
             }
