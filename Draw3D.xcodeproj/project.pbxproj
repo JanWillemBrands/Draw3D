@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		4E03E07D29B0C88500660019 /* CompareGeometries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E03E07C29B0C88500660019 /* CompareGeometries.swift */; };
 		4E03E07F29B0E2AD00660019 /* SceneKit Asset Catalog.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 4E03E07E29B0E2AD00660019 /* SceneKit Asset Catalog.scnassets */; };
+		4E134C412A1FD4170088249B /* stupid.scn in Resources */ = {isa = PBXBuildFile; fileRef = 4E134C402A1FD4170088249B /* stupid.scn */; };
 		4E2B1E852909BE7A00FF4A71 /* Draw3DApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B1E842909BE7A00FF4A71 /* Draw3DApp.swift */; };
 		4E2B1E872909BE7A00FF4A71 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B1E862909BE7A00FF4A71 /* ContentView.swift */; };
 		4E2B1E892909BE7C00FF4A71 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4E2B1E882909BE7C00FF4A71 /* Assets.xcassets */; };
@@ -28,6 +29,7 @@
 		4E03E07E29B0E2AD00660019 /* SceneKit Asset Catalog.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = "SceneKit Asset Catalog.scnassets"; sourceTree = "<group>"; };
 		4E03E08029B3D84D00660019 /* PrivateMethods.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrivateMethods.h; sourceTree = "<group>"; };
 		4E03E08329B3DA3500660019 /* Draw3D-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Draw3D-Bridging-Header.h"; sourceTree = "<group>"; };
+		4E134C402A1FD4170088249B /* stupid.scn */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; name = stupid.scn; path = "SceneKit Asset Catalog.scnassets/stupid.scn"; sourceTree = "<group>"; };
 		4E2B1E812909BE7A00FF4A71 /* Draw3D.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Draw3D.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E2B1E842909BE7A00FF4A71 /* Draw3DApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Draw3DApp.swift; sourceTree = "<group>"; };
 		4E2B1E862909BE7A00FF4A71 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -80,6 +82,7 @@
 			isa = PBXGroup;
 			children = (
 				4E68CA702A0BE0FF00965DF1 /* CRXSimulation.swift */,
+				4E134C402A1FD4170088249B /* stupid.scn */,
 				4EBD96F72931766B00BD7BD1 /* Draw3D.entitlements */,
 				4E6E2695292BA9230022DE11 /* Info.plist */,
 				4E03E07E29B0E2AD00660019 /* SceneKit Asset Catalog.scnassets */,
@@ -167,6 +170,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4E2B1E8C2909BE7C00FF4A71 /* Preview Assets.xcassets in Resources */,
+				4E134C412A1FD4170088249B /* stupid.scn in Resources */,
 				4E03E07F29B0E2AD00660019 /* SceneKit Asset Catalog.scnassets in Resources */,
 				4E2B1E892909BE7C00FF4A71 /* Assets.xcassets in Resources */,
 			);
